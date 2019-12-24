@@ -10,15 +10,12 @@
     "entity": "user",
     "service": "users",
     "secret": "jA8OIWtmwDechrXjnoNii5Jgrmc=",
-    "authStrategies": [
-      "jwt",
-      "local"
-    ],
+    "authStrategies": ["jwt", "local"],
     "jwtOptions": {
       "header": {
         "typ": "access"
       },
-      "audience": "https://yourdomain.com",
+      "audience": "https://karo.com",
       "issuer": "feathers",
       "algorithm": "HS256",
       "expiresIn": "1d"
@@ -28,5 +25,5 @@
       "passwordField": "password"
     }
   },
-  "postgres": "postgres://postgres:@localhost:5432/server"
+  "postgres": "postgres://postgres:roYce303*@localhost:5432/karodb"
 }
