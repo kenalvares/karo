@@ -12,6 +12,14 @@
     <ul>
       <li>
         <a
+          href="https://github.com/vuetifyjs/vuetify"
+          target="_blank"
+          rel="noopener"
+          >vuetify</a
+        >
+      </li>
+      <li>
+        <a
           href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel"
           target="_blank"
           rel="noopener"
