@@ -92,14 +92,22 @@
       </ul>
       <v-row align="center">
         <v-col cols="12">
-          <v-btn depressed large color="#000e32" to="/login" class="btn-login">Login</v-btn>&nbsp;
-          <v-btn outlined large color="#000e32" to="/sign-up" class="btn-signup">Sign Up</v-btn>
+          <v-btn depressed large class="indigo white--text btn-login" to="/login">
+            <v-icon left small>lock_open</v-icon>Login
+          </v-btn>&nbsp;
+          <v-btn depressed large class="success white--text btn-signup" to="/sign-up">
+            <v-icon left small>create</v-icon>Sign Up
+          </v-btn>
         </v-col>
       </v-row>
     </div>
-    <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Cupiditate labore possimus esse, maxime minus iste rerum nulla. Illum mollitia reiciendis obcaecati, at corrupti est animi inventore facere rem, quod voluptates!</p>
-    <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Deserunt eius consectetur autem eum mollitia. Accusamus officiis molestias, nostrum, odit aliquam quidem modi sit quos doloribus amet natus, nulla officia. In.</p>
-    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit rem vero dolor illo alias quam eligendi labore, dolore, cupiditate, perferendis illum consequuntur iusto amet odit dolorum? Aut nihil qui dignissimos.</p>
+    <v-row align="center">
+      <v-cols style="width: 50%; margin: auto;">
+        <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Cupiditate labore possimus esse, maxime minus iste rerum nulla. Illum mollitia reiciendis obcaecati, at corrupti est animi inventore facere rem, quod voluptates!</p>
+        <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Deserunt eius consectetur autem eum mollitia. Accusamus officiis molestias, nostrum, odit aliquam quidem modi sit quos doloribus amet natus, nulla officia. In.</p>
+        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit rem vero dolor illo alias quam eligendi labore, dolore, cupiditate, perferendis illum consequuntur iusto amet odit dolorum? Aut nihil qui dignissimos.</p>
+      </v-cols>
+    </v-row>
   </div>
 </template>
 
