@@ -1,18 +1,17 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <ChatView msg="Welcome to Your Chats" />
+  <div>
+    <Placeholder page="Chats"></Placeholder>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import ChatView from "@/components/ChatView.vue";
+import Placeholder from "@/components/Placeholder.vue";
 
 export default {
   name: "Chats",
   components: {
-    ChatView
+    Placeholder
   }
 };
 </script>

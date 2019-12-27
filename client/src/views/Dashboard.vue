@@ -1,18 +1,17 @@
 <template>
-  <div class="dashboard">
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <Dash msg="Welcome to Your Dashboard" />
+  <div>
+    <Placeholder page="Dashboard"></Placeholder>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import Dash from "@/components/Dash.vue";
+import Placeholder from "@/components/Placeholder.vue";
 
 export default {
   name: "Dashboard",
   components: {
-    Dash
+    Placeholder
   }
 };
 </script>

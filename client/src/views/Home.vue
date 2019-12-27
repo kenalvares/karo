@@ -1,24 +1,144 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <HelloWorld msg="Welcome to Karo" />
-    <v-row align="center">
-      <v-col cols="12">
-        <v-btn depressed large color="primary" to="/login">Login</v-btn>
-        <v-btn outlined large color="primary" to="/sign-up">Sign Up</v-btn>
-      </v-col>
-    </v-row>
+  <div>
+    <Placeholder page="Home" />
+    <div class="hello">
+      <h3>Installed CLI Plugins</h3>
+      <ul>
+        <li>
+          <a href="https://github.com/vuetifyjs/vuetify" target="_blank" rel="noopener">vuetify</a>
+        </li>
+        <li>
+          <a
+            href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel"
+            target="_blank"
+            rel="noopener"
+          >babel</a>
+        </li>
+        <li>
+          <a
+            href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-router"
+            target="_blank"
+            rel="noopener"
+          >router</a>
+        </li>
+        <li>
+          <a
+            href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-vuex"
+            target="_blank"
+            rel="noopener"
+          >vuex</a>
+        </li>
+        <li>
+          <a
+            href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint"
+            target="_blank"
+            rel="noopener"
+          >eslint</a>
+        </li>
+        <li>
+          <a
+            href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-unit-jest"
+            target="_blank"
+            rel="noopener"
+          >unit-jest</a>
+        </li>
+        <li>
+          <a
+            href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-e2e-cypress"
+            target="_blank"
+            rel="noopener"
+          >e2e-cypress</a>
+        </li>
+      </ul>
+      <h3>Essential Links</h3>
+      <ul>
+        <li>
+          <a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a>
+        </li>
+        <li>
+          <a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a>
+        </li>
+        <li>
+          <a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a>
+        </li>
+        <li>
+          <a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a>
+        </li>
+        <li>
+          <a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a>
+        </li>
+      </ul>
+      <h3>Ecosystem</h3>
+      <ul>
+        <li>
+          <a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a>
+        </li>
+        <li>
+          <a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a>
+        </li>
+        <li>
+          <a
+            href="https://github.com/vuejs/vue-devtools#vue-devtools"
+            target="_blank"
+            rel="noopener"
+          >vue-devtools</a>
+        </li>
+        <li>
+          <a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a>
+        </li>
+        <li>
+          <a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a>
+        </li>
+      </ul>
+      <v-row align="center">
+        <v-col cols="12">
+          <v-btn depressed large color="#000e32" to="/login" class="btn-login">Login</v-btn>&nbsp;
+          <v-btn outlined large color="#000e32" to="/sign-up" class="btn-signup">Sign Up</v-btn>
+        </v-col>
+      </v-row>
+    </div>
+    <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Cupiditate labore possimus esse, maxime minus iste rerum nulla. Illum mollitia reiciendis obcaecati, at corrupti est animi inventore facere rem, quod voluptates!</p>
+    <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Deserunt eius consectetur autem eum mollitia. Accusamus officiis molestias, nostrum, odit aliquam quidem modi sit quos doloribus amet natus, nulla officia. In.</p>
+    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit rem vero dolor illo alias quam eligendi labore, dolore, cupiditate, perferendis illum consequuntur iusto amet odit dolorum? Aut nihil qui dignissimos.</p>
   </div>
 </template>
 
+<style lang="scss" scoped>
+.btn-login {
+  color: #fff;
+}
+h3 {
+  margin: 40px 0 0;
+}
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+li {
+  display: inline-block;
+  margin: 0 10px;
+}
+a {
+  color: #42b983;
+}
+
+.hello {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+</style>
+
 <script>
 // @ is an alias to /src
-import HelloWorld from "@/components/HelloWorld.vue";
+import Placeholder from "@/components/Placeholder.vue";
 
 export default {
   name: "home",
   components: {
-    HelloWorld
+    Placeholder
   }
 };
 </script>
