@@ -6,7 +6,7 @@
 
 <script>
 // @ is an alias to /src
-import Placeholder from "@/components/Placeholder.vue";
+import Placeholder from "@/components/dev/Placeholder.vue";
 
 export default {
   name: "dashboard",
