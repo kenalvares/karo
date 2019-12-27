@@ -1,18 +1,17 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <TeamView msg="Welcome to Your Teams" />
+  <div>
+    <Placeholder page="Teams"></Placeholder>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import TeamView from "@/components/TeamView.vue";
+import Placeholder from "@/components/Placeholder.vue";
 
 export default {
   name: "Teams",
   components: {
-    TeamView
+    Placeholder
   }
 };
 </script>

@@ -1,18 +1,17 @@
 <template>
-  <div class="projects">
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <ProjectView msg="Welcome to Your Projects" />
+  <div>
+    <Placeholder page="Projects"></Placeholder>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import ProjectView from "@/components/ProjectView.vue";
+import Placeholder from "@/components/Placeholder.vue";
 
 export default {
   name: "Projects",
   components: {
-    ProjectView
+    Placeholder
   }
 };
 </script>
