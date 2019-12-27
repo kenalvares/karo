@@ -1,6 +1,6 @@
 <template>
   <v-app id="inspire">
-    <v-navigation-drawer v-model="drawer" app>
+    <v-navigation-drawer v-model="drawer" app color="grey lighten-5">
       <v-list dense>
         <v-list-item to="/">
           <v-list-item-action>
@@ -45,7 +45,7 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-app-bar app color="#000E32" dark>
+    <v-app-bar app color="light-blue darken-4" dark>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-toolbar-title>Karo</v-toolbar-title>
     </v-app-bar>
@@ -59,8 +59,8 @@
       </v-container>
     </v-content>
 
-    <v-footer color="#000E32">
-      <span class="white--text">&copy; 2019</span>
+    <v-footer elevation="2" color="lightgrey" app inset id="vFooter">
+      <span>&copy; 2019</span>
     </v-footer>
   </v-app>
 </template>
@@ -72,6 +72,10 @@
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+}
+
+#vFooter {
+  color: #777;
 }
 
 .logo {

@@ -9,7 +9,7 @@
 import Placeholder from "@/components/Placeholder.vue";
 
 export default {
-  name: "Projects",
+  name: "projects",
   components: {
     Placeholder
   }
