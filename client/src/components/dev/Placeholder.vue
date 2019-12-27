@@ -1,6 +1,6 @@
 <template>
   <div class="placeholder--body">
-    <img alt="Karo" src="../assets/logo.png" class="logo" />
+    <img alt="Karo" src="../../assets/logo.png" class="logo" />
     <h1>Welcome to your {{ page }}!</h1>
     <p>This page allows you to access your {{ page }}.</p>
   </div>
