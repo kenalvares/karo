@@ -1,54 +1,8 @@
 <template>
   <v-app id="inspire">
-    <v-navigation-drawer v-model="drawer" app color="grey lighten-5">
-      <v-list dense>
-        <v-list-item to="/">
-          <v-list-item-action>
-            <v-icon>mdi-home</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Home</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item to="/dashboard">
-          <v-list-item-action>
-            <v-icon>mdi-view-dashboard</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Dashboard</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item to="/projects">
-          <v-list-item-action>
-            <v-icon>mdi-file-multiple</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Projects</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item to="/chats">
-          <v-list-item-action>
-            <v-icon>mdi-message</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Chats</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item to="/teams">
-          <v-list-item-action>
-            <v-icon>mdi-account-multiple</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Teams</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
+    <SideMenu />
 
-    <v-app-bar app color="light-blue darken-4" dark>
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-toolbar-title>Karo</v-toolbar-title>
-    </v-app-bar>
+    <TopMenu />
 
     <!-- Sizes your content based upon application components -->
     <v-content>
@@ -98,12 +52,20 @@
 </style>
 
 <script>
+// @ is an alias to /src
+import SideMenu from "@/components/nav/SideMenu";
+import TopMenu from "@/components/nav/TopMenu";
+
 export default {
   props: {
     source: String
   },
   data: () => ({
     drawer: null
-  })
+  }),
+  components: {
+    SideMenu,
+    TopMenu
+  }
 };
 </script>
