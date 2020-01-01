@@ -10,22 +10,10 @@
       >
         <v-card>
           <v-toolbar flat color="grey" dark>
-            <v-icon left>create</v-icon>
-            <v-toolbar-title>Sign Up</v-toolbar-title>
+            <v-icon left>lock_open</v-icon>
+            <v-toolbar-title>Login</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
-            <v-text-field
-              ref="firstname"
-              v-model="firstname"
-              label="First Name"
-              required
-            ></v-text-field>
-            <v-text-field
-              ref="lastname"
-              v-model="lastname"
-              label="Second Name"
-              required
-            ></v-text-field>
             <v-text-field
               ref="email"
               v-model="email"
@@ -42,15 +30,6 @@
               counter
               @click:append="show1 = !show1"
             ></v-text-field>
-            <v-text-field
-              v-model="confirmPassword"
-              :append-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'"
-              :type="show2 ? 'text' : 'password'"
-              name="confirmPassword"
-              label="Confirm Password"
-              counter
-              @click:append="show2 = !show2"
-            ></v-text-field>
           </v-card-text>
           <v-card-actions>
             <v-spacer />
@@ -66,16 +45,12 @@
 <script>
 import router from "../../router/index";
 export default {
-  name: "SignUpForm",
+  name: "LoginForm",
   data: () => ({
     valid: false,
-    firstname: "",
-    lastname: "",
     email: "",
     password: "",
-    confirmPassword: "",
-    show1: false,
-    show2: false
+    show1: false
   }),
   methods: {
     goBack: function(n) {

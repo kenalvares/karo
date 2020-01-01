@@ -10,19 +10,23 @@ module.exports = function(app) {
     {
       firstname: {
         type: DataTypes.STRING,
+        required: true,
         allowNull: false
       },
       lastname: {
         type: DataTypes.STRING,
+        required: true,
         allowNull: false
       },
       email: {
         type: DataTypes.STRING,
+        required: true,
         allowNull: false,
         unique: true
       },
       password: {
         type: DataTypes.STRING,
+        required: true,
         allowNull: false
       }
     },

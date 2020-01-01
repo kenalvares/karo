@@ -3,8 +3,8 @@
   "port": 3030,
   "public": "../public/",
   "paginate": {
-    "default": 10,
-    "max": 50
+    "default": 500,
+    "max": 1000
   },
   "authentication": {
     "entity": "user",
@@ -16,7 +16,8 @@
         "typ": "access"
       },
       "audience": "https://karo.com",
-      "issuer": "feathers",
+      "subject": "auth",
+      "issuer": "karo.com",
       "algorithm": "HS256",
       "expiresIn": "1d"
     },
