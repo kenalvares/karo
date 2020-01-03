@@ -37,28 +37,35 @@
       >
         <ProjectCard :project="project" />
       </v-col>
-      <v-col
-        ><v-card
+
+      <v-col fluid>
+        <v-card
           outlined
-          color="cyan darken-1"
-          cols="12"
-          sm="4"
-          light
+          class="emptyCard mx-auto"
+          max-width="344"
           v-if="emptyProjectArray"
         >
-          <v-card-title class="headline">Nothing to See!</v-card-title>
-          <v-card-subtitle
-            >There don't seem to be any projects here. You can click the button
-            below to add a new one now!</v-card-subtitle
-          >
-          <v-card-actions>
-            <v-btn text>Add Project</v-btn>
-          </v-card-actions>
+          <v-card-text>
+            <div small>Oops...</div>
+            <p class="display-1 text--primary">
+              Nothing to See
+            </p>
+            <div class="text--primary">
+              It looks like there aren't any projects here, right now. You can
+              click the button above to add a new one.
+            </div>
+          </v-card-text>
         </v-card>
       </v-col>
     </v-row>
   </v-container>
 </template>
+
+<style lang="scss" scoped>
+.emptyCard {
+  background-color: #fafafa;
+}
+</style>
 
 <script>
 import ProjectCard from "@/components/cards/ProjectCard";

@@ -8,11 +8,12 @@
     </template>
     <v-sheet class="text-center">
       <v-btn
-        class="mt-6"
-        depressed
+        class="my-6"
+        outlined
         color="red"
         @click="createProjectDialog = !createProjectDialog"
-        >close</v-btn
+      >
+        <v-icon left>close</v-icon>Close</v-btn
       >
       <div>
         <CreateProjectStepper />
