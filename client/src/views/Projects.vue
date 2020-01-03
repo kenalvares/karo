@@ -37,6 +37,7 @@
       >
         <ProjectCard :project="project" />
       </v-col>
+<<<<<<< HEAD
 
       <v-col fluid>
         <v-card
@@ -55,18 +56,40 @@
               click the button above to add a new one.
             </div>
           </v-card-text>
+=======
+      <v-col
+        ><v-card
+          outlined
+          color="cyan darken-1"
+          cols="12"
+          sm="4"
+          light
+          v-if="emptyProjectArray"
+        >
+          <v-card-title class="headline">Nothing to See!</v-card-title>
+          <v-card-subtitle
+            >There don't seem to be any projects here. You can click the button
+            below to add a new one now!</v-card-subtitle
+          >
+          <v-card-actions>
+            <v-btn text>Add Project</v-btn>
+          </v-card-actions>
+>>>>>>> 4f0eba90b9322e8b0a8546b0ab9481707dc13e86
         </v-card>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
+<<<<<<< HEAD
 <style lang="scss" scoped>
 .emptyCard {
   background-color: #fafafa;
 }
 </style>
 
+=======
+>>>>>>> 4f0eba90b9322e8b0a8546b0ab9481707dc13e86
 <script>
 import ProjectCard from "@/components/cards/ProjectCard";
 import CreateProjectDialog from "@/components/sheets/CreateProjectDialog";
