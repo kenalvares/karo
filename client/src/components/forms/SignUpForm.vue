@@ -1,7 +1,13 @@
 <template>
   <v-row justify="center">
     <v-col cols="12" xl="4" lg="6" md="4">
-      <v-form ref="form" class="form" v-model="valid" method="POST">
+      <v-form
+        ref="form"
+        class="form"
+        v-model="valid"
+        @submit.prevent="createUser"
+        @keydown.prevent.enter
+      >
         <v-card>
           <v-toolbar flat color="grey" dark>
             <v-icon left>create</v-icon>
@@ -59,6 +65,8 @@
 
 <script>
 import router from "../../router/index";
+import feathersClient from "../../feathers-client";
+
 export default {
   name: "SignUpForm",
   data: () => ({
@@ -69,12 +77,25 @@ export default {
     password: "",
     confirmPassword: "",
     show1: false,
-    show2: false
+    show2: false,
+    errorMsgs: null
   }),
   methods: {
     goBack: function(n) {
       n *= -1;
       router.go(n);
+    },
+    createUser() {
+      let user = {
+        firstname: this.firstname,
+        lastname: this.lastname,
+        email: this.email,
+        password: this.password
+      };
+      feathersClient
+        .service("users")
+        .create(user)
+        .then(router.push({ path: "login" }));
     }
   }
 };

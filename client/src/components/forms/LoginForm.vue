@@ -1,7 +1,12 @@
 <template>
   <v-row justify="center">
     <v-col cols="12" xl="4" lg="6" md="4">
-      <v-form ref="form" class="form" v-model="valid" method="POST">
+      <v-form
+        ref="form"
+        class="form"
+        v-model="valid"
+        @submit.prevent="loginUser"
+      >
         <v-card>
           <v-toolbar flat color="grey" dark>
             <v-icon left>lock_open</v-icon>
@@ -38,6 +43,8 @@
 
 <script>
 import router from "../../router/index";
+import feathersClient from "../../feathers-client";
+
 export default {
   name: "LoginForm",
   data: () => ({
@@ -50,6 +57,14 @@ export default {
     goBack: function(n) {
       n *= -1;
       router.go(n);
+    },
+    loginUser() {
+      let user = {
+        strategy: "local",
+        email: this.email,
+        password: this.password
+      };
+      feathersClient.authenticate(user);
     }
   }
 };

@@ -16,7 +16,6 @@
         "typ": "access"
       },
       "audience": "https://karo.com",
-      "subject": "auth",
       "issuer": "karo.com",
       "algorithm": "HS256",
       "expiresIn": "1d"
