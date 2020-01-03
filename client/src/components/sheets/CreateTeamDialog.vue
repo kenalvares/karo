@@ -1,35 +1,35 @@
 <template>
-  <v-bottom-sheet v-model="createProjectDialog">
+  <v-bottom-sheet v-model="createTeamDialog">
     <template v-slot:activator="{ on }">
       <v-btn outlined color="primary" v-on="on">
         <v-icon left>add</v-icon>
-        Create Project
+        Create Team
       </v-btn>
     </template>
     <v-sheet class="text-center">
       <v-btn
         class="mt-6"
-        depressed
+        flat
         color="red"
-        @click="createProjectDialog = !createProjectDialog"
+        @click="createTeamDialog = !createTeamDialog"
         >close</v-btn
       >
       <div>
-        <CreateProjectStepper />
+        <CreateTeamStepper />
       </div>
     </v-sheet>
   </v-bottom-sheet>
 </template>
 
 <script>
-import CreateProjectStepper from "@/components/steppers/CreateProjectStepper";
+import CreateTeamStepper from "@/components/steppers/CreateTeamStepper";
 export default {
-  name: "CreateProjectDialog",
+  name: "CreateTeamDialog",
   data: () => ({
-    createProjectDialog: false
+    createTeamDialog: false
   }),
   components: {
-    CreateProjectStepper
+    CreateTeamStepper
   }
 };
 </script>

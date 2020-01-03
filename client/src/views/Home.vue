@@ -2,7 +2,7 @@
   <div>
     <Placeholder page="Home" />
     <div class="hello">
-      <h3>Installed CLI Plugins</h3>
+      <!--<h3>Installed CLI Plugins</h3>
       <ul>
         <li>
           <a
@@ -122,7 +122,7 @@
             >awesome-vue</a
           >
         </li>
-      </ul>
+      </ul>-->
       <v-row align="center">
         <v-col cols="12">
           <v-btn
