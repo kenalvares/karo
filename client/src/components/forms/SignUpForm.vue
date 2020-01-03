@@ -1,13 +1,7 @@
 <template>
   <v-row justify="center">
     <v-col cols="12" xl="4" lg="6" md="4">
-      <v-form
-        ref="form"
-        class="form"
-        v-model="valid"
-        action="https://localhost:3030/users"
-        method="POST"
-      >
+      <v-form ref="form" class="form" v-model="valid" method="POST">
         <v-card>
           <v-toolbar flat color="grey" dark>
             <v-icon left>create</v-icon>
@@ -23,7 +17,7 @@
             <v-text-field
               ref="lastname"
               v-model="lastname"
-              label="Second Name"
+              label="Last Name"
               required
             ></v-text-field>
             <v-text-field

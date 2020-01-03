@@ -14,7 +14,7 @@
     </v-content>
 
     <v-footer elevation="2" color="lightgrey" app inset id="vFooter">
-      <span>&copy; 2019</span>
+      <span>&copy; 2019 - Karo</span>
     </v-footer>
   </v-app>
 </template>
