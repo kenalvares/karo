@@ -21,8 +21,8 @@
         Edit
       </v-btn>
       <v-spacer></v-spacer>
-      <v-btn icon>
-        <v-icon>bookmark</v-icon>
+      <v-btn :color="checkFav" @click="favouriteThisTeam(team.id)" icon>
+        <v-icon>star</v-icon>
       </v-btn>
       <v-btn v-if="team.owned" icon>
         <v-icon>person_add</v-icon>
@@ -36,6 +36,19 @@ export default {
   name: "TeamCard",
   props: {
     team: Object
+  },
+  computed: {
+    checkFav() {
+      if (this.team.fav === true) {
+        return "yellow";
+      }
+      return "grey";
+    }
+  },
+  methods: {
+    favouriteThisTeam() {
+      this.team.fav = !this.team.fav;
+    }
   }
 };
 </script>

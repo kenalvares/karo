@@ -6,26 +6,32 @@
         <v-btn-toggle
           v-model="teamFilter"
           tile
-          color="success accent-3"
+          :color="filterColor"
           group
           mandatory
         >
-          <v-btn value="all">
+          <v-btn value="all" @click="filterTeams('all')">
             All
           </v-btn>
-          <v-btn value="owned by me">
-            Owned By Me
+          <v-btn value="owned" @click="filterTeams('owned')">
+            Owned
           </v-btn>
-          <v-btn value="saved">
-            Saved
+          <v-btn value="fav" @click="filterTeams('fav')">
+            Fav
           </v-btn>
         </v-btn-toggle>
       </v-col>
     </v-row>
     <v-row>
-      <v-col v-for="team in teams" :key="team.id" cols="12" sm="4">
+      <v-col v-for="team in selectedTeams" :key="team.id" cols="12" sm="4">
         <TeamCard :team="team" />
       </v-col>
+      <EmptyCard
+        :toShow="emptyTeamArray"
+        msg="
+          It looks like there's nothing here right now. You can click the button
+          above to add a new team."
+      />
     </v-row>
   </v-container>
 </template>
@@ -33,54 +39,99 @@
 <script>
 import TeamCard from "@/components/cards/TeamCard";
 import CreateTeamDialog from "@/components/sheets/CreateTeamDialog";
+import EmptyCard from "@/components/cards/EmptyCard";
+
 export default {
   name: "teams",
   data: () => ({
-    teamFilter: 0,
+    teamFilter: "all",
+    filterColor: "purple",
     teams: [
       {
         id: "1",
         name: "MedHeads",
         description:
-          "Team of medical professionals working on potential cures for cancer",
+          "Medical students, practicing professionals and engineers - building modern medical solutions",
         avatar: "https://picsum.photos/300/300?random=6",
-        owned: true
+        owned: true,
+        fav: true
       },
       {
         id: "2",
         name: "Youth4You",
         description:
-          "Law college students fighting for the rights of iguanas everywhere",
+          "A group of law students who fight for the pressing concerns facing our nation's youth",
         avatar: "https://picsum.photos/300/300?random=7",
-        owned: false
+        owned: false,
+        fav: false
       },
       {
         id: "3",
         name: "20th Century Wolf",
         description:
-          "Writing, directing and producing a high-budget, block-buster movie",
+          "Team to manage movie production - financing, scripting, casting, etc",
         avatar: "https://picsum.photos/300/300?random=8",
-        owned: false
+        owned: false,
+        fav: false
       },
       {
         id: "4",
         name: "Goa Police",
-        description: "Planning raids on all the undergroud block makers in Goa",
+        description: "Online hub for Goa Police Force to collaborate and plan",
         avatar: "https://picsum.photos/300/300?random=9",
-        owned: true
+        owned: true,
+        fav: false
       },
       {
         id: "5",
         name: "Group #5",
-        description: "Developing an app to make project management easier",
+        description:
+          "BCA students working on big colleges, from a little state",
         avatar: "https://picsum.photos/300/300?random=10",
-        owned: true
+        owned: true,
+        fav: true
       }
     ]
   }),
   components: {
     TeamCard,
-    CreateTeamDialog
+    CreateTeamDialog,
+    EmptyCard
+  },
+  computed: {
+    selectedTeams() {
+      if (this.teamFilter === "fav") {
+        return this.teams.filter(function(team) {
+          return team.fav;
+        });
+      } else if (this.teamFilter === "owned") {
+        return this.teams.filter(function(team) {
+          return team.owned;
+        });
+      } else {
+        return this.teams;
+      }
+    },
+    emptyTeamArray() {
+      if (this.selectedTeams.length < 1) {
+        return true;
+      }
+      return false;
+    }
+  },
+  methods: {
+    filterTeams(type) {
+      if (type === "all") {
+        this.filterColor = "purple";
+      } else if (type === "fav") {
+        this.filterColor = "yellow";
+      } else if (type === "owned") {
+        this.filterColor = "success";
+      } else {
+        this.filterColor = "grey";
+      }
+      this.filterColor.concat(" accent-4");
+    }
   }
 };
 </script>

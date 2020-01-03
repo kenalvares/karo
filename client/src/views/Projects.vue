@@ -37,39 +37,21 @@
       >
         <ProjectCard :project="project" />
       </v-col>
-
-      <v-col fluid>
-        <v-card
-          outlined
-          class="emptyCard mx-auto"
-          max-width="344"
-          v-if="emptyProjectArray"
-        >
-          <v-card-text>
-            <div small>Oops...</div>
-            <p class="display-1 text--primary">
-              Nothing to See
-            </p>
-            <div class="text--primary">
-              It looks like there aren't any projects here, right now. You can
-              click the button above to add a new one.
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-col>
+      <EmptyCard
+        :toShow="emptyProjectArray"
+        msg="
+          It looks like there's nothing here right now. You can click the button
+          above to add a new project."
+      />
     </v-row>
   </v-container>
 </template>
 
-<style lang="scss" scoped>
-.emptyCard {
-  background-color: #fafafa;
-}
-</style>
-
 <script>
 import ProjectCard from "@/components/cards/ProjectCard";
 import CreateProjectDialog from "@/components/sheets/CreateProjectDialog";
+import EmptyCard from "@/components/cards/EmptyCard";
+
 export default {
   name: "projects",
   data: () => ({
@@ -92,7 +74,7 @@ export default {
         title: "Legalize Iguanas",
         team: "Youth4You",
         description:
-          "Law college students fighting for the rights of iguanas everywhere",
+          "Iguanas are discriminated against way too much! We must fight for their rights everywhere",
         backgroundUrl: "https://picsum.photos/1080/600?random=2",
         avatar: "https://picsum.photos/300/300?random=7",
         status: "completed",
@@ -133,7 +115,8 @@ export default {
   }),
   components: {
     ProjectCard,
-    CreateProjectDialog
+    CreateProjectDialog,
+    EmptyCard
   },
   computed: {
     selectedProjects() {
