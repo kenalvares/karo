@@ -12,6 +12,7 @@
             <v-icon left>lock_open</v-icon>
             <v-toolbar-title>Login</v-toolbar-title>
           </v-toolbar>
+          <div class="red white--text pa-4" v-if="errors">{{ errors }}</div>
           <v-card-text>
             <v-text-field
               ref="email"
@@ -41,8 +42,11 @@
   </v-row>
 </template>
 
+<style lang="scss" scoped></style>
+
 <script>
 import router from "../../router/index";
+import store from "../../store/index";
 import feathersClient from "../../feathers-client";
 
 export default {
@@ -51,20 +55,40 @@ export default {
     valid: false,
     email: "",
     password: "",
-    show1: false
+    show1: false,
+    errors: null
   }),
+  mounted: async () => {
+    /*eslint-disable no-console*/
+    try {
+      return await feathersClient.reAuthenticate().then(() => {
+        store.commit("userLoggedIn");
+        router.push("/dashboard");
+      });
+    } catch (err) {
+      store.commit("userLoggedOut");
+    }
+    /*eslint-disable no-console*/
+  },
   methods: {
     goBack: function(n) {
       n *= -1;
       router.go(n);
     },
-    loginUser() {
+    async loginUser() {
       let user = {
         strategy: "local",
         email: this.email,
         password: this.password
       };
-      feathersClient.authenticate(user);
+      try {
+        return await feathersClient.authenticate(user).then(() => {
+          store.commit("userLoggedIn");
+          router.push("/dashboard");
+        });
+      } catch (err) {
+        this.errors = err.message;
+      }
     }
   }
 };

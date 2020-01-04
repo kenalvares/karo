@@ -34,10 +34,10 @@ export default new Vuex.Store({
           text: "Teams",
           route: "/teams"
         }
-      ],
-      projectMenu: []
+      ]
     },
-    links: null
+    links: null,
+    loggedIn: false
   },
   getters: {
     getMainMenu(state) {
@@ -45,11 +45,20 @@ export default new Vuex.Store({
     },
     getSideDrawer(state) {
       return state.sideDrawer;
+    },
+    isUserLoggedIn(state) {
+      return state.loggedIn;
     }
   },
   mutations: {
     changeSideDrawer(state) {
       state.sideDrawer = !state.sideDrawer;
+    },
+    userLoggedIn(state) {
+      state.loggedIn = true;
+    },
+    userLoggedOut(state) {
+      state.loggedIn = false;
     }
   },
   actions: {}
