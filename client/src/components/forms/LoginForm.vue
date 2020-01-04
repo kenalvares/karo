@@ -59,7 +59,6 @@ export default {
     errors: null
   }),
   mounted: async () => {
-    /*eslint-disable no-console*/
     try {
       return await feathersClient.reAuthenticate().then(() => {
         store.commit("userLoggedIn");
@@ -68,7 +67,6 @@ export default {
     } catch (err) {
       store.commit("userLoggedOut");
     }
-    /*eslint-disable no-console*/
   },
   methods: {
     goBack: function(n) {

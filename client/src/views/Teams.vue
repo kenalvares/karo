@@ -86,7 +86,7 @@ export default {
         id: "5",
         name: "Group #5",
         description:
-          "BCA students working on big colleges, from a little state",
+          "BCA students working on big projects, from a little state",
         avatar: "https://picsum.photos/300/300?random=10",
         owned: true,
         fav: true
