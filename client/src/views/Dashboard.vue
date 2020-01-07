@@ -1,7 +1,7 @@
 <template>
   <div>
+    <LoggedIn v-if="toShow" />
     <Placeholder page="Dashboard" />
-    <LoggedIn :snackbar="toShow" />
   </div>
 </template>
 
@@ -21,8 +21,9 @@ export default {
     toShow: false
   }),
   mounted() {
-    if (store.state.loggedIn) {
+    if (store.state.loginNotice) {
       this.toShow = true;
+      store.commit("hideLoginNotice");
     } else {
       this.toShow = false;
     }

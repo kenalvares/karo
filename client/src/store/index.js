@@ -37,7 +37,7 @@ export default new Vuex.Store({
       ]
     },
     links: null,
-    loggedIn: false
+    loginNotice: false
   },
   getters: {
     getMainMenu(state) {
@@ -54,11 +54,11 @@ export default new Vuex.Store({
     changeSideDrawer(state) {
       state.sideDrawer = !state.sideDrawer;
     },
-    userLoggedIn(state) {
-      state.loggedIn = true;
+    showLoginNotice(state) {
+      state.loginNotice = true;
     },
-    userLoggedOut(state) {
-      state.loggedIn = false;
+    hideLoginNotice(state) {
+      state.loginNotice = false;
     }
   },
   actions: {}

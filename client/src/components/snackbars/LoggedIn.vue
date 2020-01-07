@@ -16,21 +16,8 @@
 <script>
 export default {
   name: "LoggedIn",
-  props: {
-    snackbar: Boolean
-  },
   data: () => ({
-    toShow: false
-  }),
-  computed: {
-    snackbarShow: {
-      get: function() {
-        return this.toShow;
-      },
-      set: function() {
-        this.toShow = !this.toShow;
-      }
-    }
-  }
+    toShow: true
+  })
 };
 </script>

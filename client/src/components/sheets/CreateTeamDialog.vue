@@ -7,13 +7,19 @@
       </v-btn>
     </template>
     <v-sheet class="text-center">
-      <v-btn
-        class="mt-6"
-        flat
-        color="red"
-        @click="createTeamDialog = !createTeamDialog"
-        >close</v-btn
-      >
+      <v-toolbar dark>
+        <h2>Create Team</h2>
+        <v-spacer />
+        <v-btn
+          outlined
+          dark
+          class="my-6"
+          @click="createTeamDialog = !createTeamDialog"
+        >
+          Close
+          <v-icon right>close</v-icon>
+        </v-btn>
+      </v-toolbar>
       <div>
         <CreateTeamStepper />
       </div>

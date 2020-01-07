@@ -7,14 +7,19 @@
       </v-btn>
     </template>
     <v-sheet class="text-center">
-      <v-btn
-        class="my-6"
-        outlined
-        color="red"
-        @click="createProjectDialog = !createProjectDialog"
-      >
-        <v-icon left>close</v-icon>Close</v-btn
-      >
+      <v-toolbar dark>
+        <h2>Create Project</h2>
+        <v-spacer />
+        <v-btn
+          outlined
+          dark
+          class="my-6"
+          @click="createProjectDialog = !createProjectDialog"
+        >
+          Close
+          <v-icon right>close</v-icon>
+        </v-btn>
+      </v-toolbar>
       <div>
         <CreateProjectStepper />
       </div>

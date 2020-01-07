@@ -40,58 +40,14 @@
 import TeamCard from "@/components/cards/TeamCard";
 import CreateTeamDialog from "@/components/sheets/CreateTeamDialog";
 import EmptyCard from "@/components/cards/EmptyCard";
+import feathersClient from "../feathers-client";
 
 export default {
   name: "teams",
   data: () => ({
     teamFilter: "all",
     filterColor: "purple",
-    teams: [
-      {
-        id: "1",
-        name: "MedHeads",
-        description:
-          "Medical students, practicing professionals and engineers - building modern medical solutions",
-        avatar: "https://picsum.photos/300/300?random=6",
-        owned: true,
-        fav: true
-      },
-      {
-        id: "2",
-        name: "Youth4You",
-        description:
-          "A group of law students who fight for the pressing concerns facing our nation's youth",
-        avatar: "https://picsum.photos/300/300?random=7",
-        owned: false,
-        fav: false
-      },
-      {
-        id: "3",
-        name: "20th Century Wolf",
-        description:
-          "Team to manage movie production - financing, scripting, casting, etc",
-        avatar: "https://picsum.photos/300/300?random=8",
-        owned: false,
-        fav: false
-      },
-      {
-        id: "4",
-        name: "Goa Police",
-        description: "Online hub for Goa Police Force to collaborate and plan",
-        avatar: "https://picsum.photos/300/300?random=9",
-        owned: true,
-        fav: false
-      },
-      {
-        id: "5",
-        name: "Group #5",
-        description:
-          "BCA students working on big projects, from a little state",
-        avatar: "https://picsum.photos/300/300?random=10",
-        owned: true,
-        fav: true
-      }
-    ]
+    teams: []
   }),
   components: {
     TeamCard,
@@ -119,7 +75,119 @@ export default {
       return false;
     }
   },
+  async created() {
+    const rawAuthData = await this.authenticateUser();
+    const user = rawAuthData.user;
+    const rawMemberInfo = await this.findMemberInfo(user.id);
+    const memberInfo = rawMemberInfo.data;
+    const teamIds = this.getTeamIds(memberInfo);
+    let teamData = await this.getTeamData(teamIds);
+    let roleData = await this.getRoleData();
+    const ownerRoleId = roleData.data[0].id;
+    teamData = this.checkOwnership(memberInfo, teamData, ownerRoleId);
+
+    teamData = this.markFavourites(memberInfo, teamData);
+    this.setTeams(teamData);
+  },
   methods: {
+    markFavourites(rawArr, teamArr) {
+      let teamIds = [];
+      for (let i = 0; i < rawArr.length; i++) {
+        if (rawArr[i].fav) {
+          teamIds.push(rawArr[i].teamid);
+        }
+      }
+      for (let i = 0; i < teamIds.length; i++) {
+        for (let j = 0; j < teamArr.data.length; j++) {
+          if (teamArr.data[j].id === teamIds[i]) {
+            teamArr.data[j].fav = true;
+            break;
+          } else {
+            teamArr.data[j].fav = false;
+          }
+        }
+      }
+      return teamArr;
+    },
+    checkOwnership(rawArr, teamArr, owner) {
+      let teamIds = [];
+      for (let i = 0; i < rawArr.length; i++) {
+        if (rawArr[i].roleid === owner) {
+          teamIds.push(rawArr[i].teamid);
+        }
+      }
+      for (let i = 0; i < teamIds.length; i++) {
+        for (let j = 0; j < teamArr.data.length; j++) {
+          if (teamArr.data[j].id === teamIds[i]) {
+            teamArr.data[j].owned = true;
+            break;
+          } else {
+            teamArr.data[j].owned = false;
+          }
+        }
+      }
+      return teamArr;
+    },
+    async getRoleData() {
+      return await feathersClient.service("roles").find({
+        query: {
+          role: "Owner"
+        }
+      });
+    },
+    getTeamIds(memberInfo) {
+      let arr = [];
+      for (let i = 0; i < memberInfo.length; i++) {
+        arr.push(memberInfo[i].teamid);
+      }
+      return arr;
+    },
+    getRoleIds(memberInfo) {
+      let arr = [];
+      for (let i = 0; i < memberInfo.length; i++) {
+        arr.push(memberInfo[i].roleid);
+      }
+      return arr;
+    },
+    async findMemberInfo(val) {
+      return await feathersClient.service("members").find({
+        query: {
+          userid: val
+        }
+      });
+    },
+    async authenticateUser() {
+      try {
+        return await feathersClient.reAuthenticate();
+      } catch (err) {
+        /*eslint-disable no-console*/
+        console.log(err);
+        /*eslint-enable no-console*/
+      }
+    },
+    async getTeamData(arr) {
+      const gotTeams = await feathersClient.service("teams").find({
+        query: {
+          id: {
+            $in: arr
+          }
+        }
+      });
+      return gotTeams;
+    },
+    setTeams(arrSet) {
+      let teamData = arrSet.data;
+      for (let i = 0; i < teamData.length; i++) {
+        this.teams.push({
+          id: i,
+          name: teamData[i].name,
+          description: teamData[i].description,
+          owned: teamData[i].owned,
+          fav: teamData[i].fav,
+          avatar: teamData[i].profilePicUrl
+        });
+      }
+    },
     filterTeams(type) {
       if (type === "all") {
         this.filterColor = "purple";

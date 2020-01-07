@@ -26,8 +26,6 @@
               :type="show1 ? 'text' : 'password'"
               name="password"
               label="Password"
-              hint="At least 8 characters"
-              counter
               @click:append="show1 = !show1"
             ></v-text-field>
           </v-card-text>
@@ -61,11 +59,11 @@ export default {
   mounted: async () => {
     try {
       return await feathersClient.reAuthenticate().then(() => {
-        store.commit("userLoggedIn");
+        store.commit("showLoginNotice");
         router.push("/dashboard");
       });
     } catch (err) {
-      store.commit("userLoggedOut");
+      store.commit("hideLoginNotice");
     }
   },
   methods: {
@@ -81,7 +79,7 @@ export default {
       };
       try {
         return await feathersClient.authenticate(user).then(() => {
-          store.commit("userLoggedIn");
+          store.commit("showLoginNotice");
           router.push("/dashboard");
         });
       } catch (err) {
