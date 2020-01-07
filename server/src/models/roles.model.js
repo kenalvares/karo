@@ -5,22 +5,12 @@ const DataTypes = Sequelize.DataTypes;
 
 module.exports = function(app) {
   const sequelizeClient = app.get("sequelizeClient");
-  const teams = sequelizeClient.define(
-    "teams",
+  const roles = sequelizeClient.define(
+    "roles",
     {
-      name: {
+      role: {
         type: DataTypes.STRING,
-        required: true,
         allowNull: false
-      },
-      description: {
-        type: DataTypes.STRING,
-        required: true,
-        allowNull: false
-      },
-      profilePicUrl: {
-        type: DataTypes.STRING,
-        allowNull: true
       }
     },
     {
@@ -33,10 +23,10 @@ module.exports = function(app) {
   );
 
   // eslint-disable-next-line no-unused-vars
-  teams.associate = function(models) {
+  roles.associate = function(models) {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
   };
 
-  return teams;
+  return roles;
 };
