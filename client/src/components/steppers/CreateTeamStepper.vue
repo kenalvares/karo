@@ -31,25 +31,12 @@
         counter
         label="Enter Team Name"
         :rules="teamnameMaxChars"
-        @keydown.enter="step(3)"
+        @keydown.enter="step(2)"
       ></v-text-field>
-      <v-btn color="primary" @click="step(3)">Continue</v-btn>
+      <v-btn color="primary" @click="step(2)">Continue</v-btn>
     </v-stepper-content>
 
     <v-stepper-content step="2">
-      <v-file-input
-        :rules="teamLogoRules"
-        ref="teamlogo"
-        @keydown.enter="step(3)"
-        accept="image/png, image/jpeg, image/bmp"
-        prepend-icon="mdi-camera"
-        label="Upload Team Logo"
-      ></v-file-input>
-      <v-btn color="primary" outlined class="ml-4" @click="step(3)">Skip</v-btn>
-      <v-btn color="primary" class="ml-4" @click="step(3)">Continue</v-btn>
-    </v-stepper-content>
-
-    <v-stepper-content step="3">
       <v-textarea
         placeholder="This team is all about..."
         hint="A short, concise introduction to your team"
@@ -58,12 +45,12 @@
         label="Enter Team Description"
         counter
         :rules="descriptionMaxChars"
-        @keydown.enter="step(4)"
+        @keydown.enter="step(3)"
       ></v-textarea>
-      <v-btn color="primary" @click="step(4)">Continue</v-btn>
+      <v-btn color="primary" @click="step(3)">Continue</v-btn>
     </v-stepper-content>
 
-    <v-stepper-content step="4">
+    <v-stepper-content step="3">
       <v-btn color="primary" class="ml-4" @click="createTeam()">Continue</v-btn>
     </v-stepper-content>
   </v-stepper>
@@ -72,32 +59,32 @@
 <script>
 /*eslint-disable no-unused-vars*/
 import feathersClient from "../../feathers-client";
-/*eslint-enable no-unused-vars*/
-
+/*eslint-disable no-console*/
 export default {
   name: "CreateTeamStepper",
+  props: {
+    roles: Array
+  },
   data: () => ({
     teamStepper: 1,
+    members: [],
     teamname: "",
-    teamlogo: "",
     description: "",
     errors: null,
     descriptionMaxChars: [v => v.length <= 500 || "Max 500 characters"],
-    teamnameMaxChars: [v => v.length <= 50 || "Max 50 characters"],
-    teamLogoRules: [
-      v => !v || v.size < 2000000 || "Logo size should be less than 2 MB!"
-    ]
+    teamnameMaxChars: [v => v.length <= 50 || "Max 50 characters"]
   }),
   methods: {
-    /*eslint-disable no-console*/
     createTeam() {
+      let localTeam = this.getLocalTeam();
+    },
+    getLocalTeam() {
       var teamDetails = {
         name: this.teamname,
-        description: this.description,
-        profilePicUrl: this.teamlogo
+        description: this.description
       };
       console.log(teamDetails, this.teamMembers);
-    } /*eslint-enable no-console*/,
+    },
     step(n) {
       let nextStep = true;
       if (n === 2) {

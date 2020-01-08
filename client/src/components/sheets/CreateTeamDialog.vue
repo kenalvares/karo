@@ -21,7 +21,7 @@
         </v-btn>
       </v-toolbar>
       <div>
-        <CreateTeamStepper />
+        <CreateTeamStepper :roles="roles" />
       </div>
     </v-sheet>
   </v-bottom-sheet>
@@ -31,6 +31,9 @@
 import CreateTeamStepper from "@/components/steppers/CreateTeamStepper";
 export default {
   name: "CreateTeamDialog",
+  props: {
+    roles: Array
+  },
   data: () => ({
     createTeamDialog: false
   }),

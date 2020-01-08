@@ -1,8 +1,8 @@
 <template>
   <v-container class="grey lighten-5">
-    <v-row no-gutters>
+    <v-row no-gutters v-if="!pendingData">
       <v-col cols="12">
-        <CreateTeamDialog />
+        <CreateTeamDialog :roles="roles" />
         <v-btn-toggle
           v-model="teamFilter"
           tile
@@ -22,9 +22,9 @@
         </v-btn-toggle>
       </v-col>
     </v-row>
-    <v-row>
+    <v-row v-if="!pendingData">
       <v-col v-for="team in selectedTeams" :key="team.id" cols="12" sm="4">
-        <TeamCard :team="team" />
+        <TeamCard :team="team" :userid="userid" />
       </v-col>
       <EmptyCard
         :toShow="emptyTeamArray"
@@ -33,10 +33,34 @@
           above to add a new team."
       />
     </v-row>
+    <v-row v-if="pendingData" class="full-height">
+      <v-col cols="12" align="center" class="flex-vertical">
+        <v-progress-circular
+          :size="100"
+          :width="5"
+          color="primary"
+          indeterminate
+          class="mb-5"
+        ></v-progress-circular>
+        <span>{{ pendingMsg }}</span>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
+<style lang="scss" scoped>
+.full-height {
+  height: 65vh;
+}
+.flex-vertical {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+</style>
 <script>
+/*eslint-disable no-console*/
 import TeamCard from "@/components/cards/TeamCard";
 import CreateTeamDialog from "@/components/sheets/CreateTeamDialog";
 import EmptyCard from "@/components/cards/EmptyCard";
@@ -47,7 +71,11 @@ export default {
   data: () => ({
     teamFilter: "all",
     filterColor: "purple",
-    teams: []
+    teams: [],
+    roles: [],
+    userid: null,
+    pendingData: true,
+    pendingMsg: "Pulling out the magnifying glass..."
   }),
   components: {
     TeamCard,
@@ -76,21 +104,33 @@ export default {
     }
   },
   async created() {
-    const rawAuthData = await this.authenticateUser();
-    const user = rawAuthData.user;
-    const rawMemberInfo = await this.findMemberInfo(user.id);
-    const memberInfo = rawMemberInfo.data;
+    const user = await this.authenticateUser();
+    this.userid = user.id;
+    this.pendingMsg = "Searching for your teams...";
+    const memberInfo = await this.findMemberInfo(this.userid);
     const teamIds = this.getTeamIds(memberInfo);
-    let teamData = await this.getTeamData(teamIds);
-    let roleData = await this.getRoleData();
-    const ownerRoleId = roleData.data[0].id;
-    teamData = this.checkOwnership(memberInfo, teamData, ownerRoleId);
-
-    teamData = this.markFavourites(memberInfo, teamData);
+    const teamDetails = await this.getTeamData(teamIds);
+    const ownerRoleId = await this.getOwnerRole();
+    const teamsWithOwnership = this.checkOwnership(
+      memberInfo,
+      teamDetails,
+      ownerRoleId
+    );
+    const teamData = this.findFavTeams(memberInfo, teamsWithOwnership);
     this.setTeams(teamData);
+    this.roles = await this.pullRoleData();
+    this.pendingData = false;
   },
   methods: {
-    markFavourites(rawArr, teamArr) {
+    async pullRoleData() {
+      const rawData = await feathersClient.service("roles").find({
+        query: {
+          $select: ["id", "role"]
+        }
+      });
+      return [...rawData.data];
+    },
+    findFavTeams(rawArr, teamArr) {
       let teamIds = [];
       for (let i = 0; i < rawArr.length; i++) {
         if (rawArr[i].fav) {
@@ -128,12 +168,13 @@ export default {
       }
       return teamArr;
     },
-    async getRoleData() {
-      return await feathersClient.service("roles").find({
+    async getOwnerRole() {
+      const rawData = await feathersClient.service("roles").find({
         query: {
           role: "Owner"
         }
       });
+      return rawData.data[0].id;
     },
     getTeamIds(memberInfo) {
       let arr = [];
@@ -150,15 +191,17 @@ export default {
       return arr;
     },
     async findMemberInfo(val) {
-      return await feathersClient.service("members").find({
+      const rawData = await feathersClient.service("members").find({
         query: {
           userid: val
         }
       });
+      return [...rawData.data];
     },
     async authenticateUser() {
       try {
-        return await feathersClient.reAuthenticate();
+        const rawData = await feathersClient.reAuthenticate();
+        return { ...rawData.user };
       } catch (err) {
         /*eslint-disable no-console*/
         console.log(err);
@@ -179,7 +222,7 @@ export default {
       let teamData = arrSet.data;
       for (let i = 0; i < teamData.length; i++) {
         this.teams.push({
-          id: i,
+          id: teamData[i].id,
           name: teamData[i].name,
           description: teamData[i].description,
           owned: teamData[i].owned,

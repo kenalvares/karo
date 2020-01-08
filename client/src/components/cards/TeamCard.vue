@@ -9,9 +9,7 @@
       </v-list-item-content>
     </v-list-item>
 
-    <v-card-text>
-      {{ team.description }}
-    </v-card-text>
+    <v-card-text> {{ team.description }} </v-card-text>
 
     <v-card-actions>
       <v-btn text color="indigo accent-4">
@@ -32,10 +30,14 @@
 </template>
 
 <script>
+/*eslint-disable no-console*/
+import feathersClient from "../../feathers-client";
+
 export default {
   name: "TeamCard",
   props: {
-    team: Object
+    team: Object,
+    userid: String
   },
   computed: {
     checkFav() {
@@ -46,7 +48,17 @@ export default {
     }
   },
   methods: {
-    favouriteThisTeam() {
+    async favouriteThisTeam() {
+      const rawData = await feathersClient.service("members").find({
+        query: {
+          teamid: this.team.id,
+          userid: this.userid
+        }
+      });
+      const memberId = Number.parseInt(rawData.data[0].id);
+      await feathersClient.service("members").patch(memberId, {
+        fav: !this.team.fav
+      });
       this.team.fav = !this.team.fav;
     }
   }
