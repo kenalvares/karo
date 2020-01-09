@@ -40,8 +40,6 @@
   </v-row>
 </template>
 
-<style lang="scss" scoped></style>
-
 <script>
 import router from "../../router/index";
 import store from "../../store/index";
@@ -59,11 +57,11 @@ export default {
   mounted: async () => {
     try {
       return await feathersClient.reAuthenticate().then(() => {
-        store.commit("showLoginNotice");
+        store.dispatch("login");
         router.push("/dashboard");
       });
     } catch (err) {
-      store.commit("hideLoginNotice");
+      store.dispatch("logout");
     }
   },
   methods: {
@@ -79,10 +77,11 @@ export default {
       };
       try {
         return await feathersClient.authenticate(user).then(() => {
-          store.commit("showLoginNotice");
+          store.dispatch("login");
           router.push("/dashboard");
         });
       } catch (err) {
+        store.dispatch("logout");
         this.errors = err.message;
       }
     }

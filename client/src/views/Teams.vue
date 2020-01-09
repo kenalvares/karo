@@ -2,7 +2,7 @@
   <v-container class="grey lighten-5">
     <v-row no-gutters v-if="!pendingData">
       <v-col cols="12">
-        <CreateTeamDialog :roles="roles" />
+        <CreateTeamDialog :roles="roles" @teamCreated="getAllData" />
         <v-btn-toggle
           v-model="teamFilter"
           tile
@@ -41,7 +41,17 @@
           color="primary"
           indeterminate
           class="mb-5"
-        ></v-progress-circular>
+          v-if="!failed"
+        ></v-progress-circular
+        ><v-progress-circular
+          :size="100"
+          :width="5"
+          color="grey"
+          class="mb-5"
+          v-if="failed"
+        >
+          <v-icon color="grey">close</v-icon></v-progress-circular
+        >
         <span>{{ pendingMsg }}</span>
       </v-col>
     </v-row>
@@ -65,6 +75,7 @@ import TeamCard from "@/components/cards/TeamCard";
 import CreateTeamDialog from "@/components/sheets/CreateTeamDialog";
 import EmptyCard from "@/components/cards/EmptyCard";
 import feathersClient from "../feathers-client";
+import store from "../store/index";
 
 export default {
   name: "teams",
@@ -75,7 +86,8 @@ export default {
     roles: [],
     userid: null,
     pendingData: true,
-    pendingMsg: "Pulling out the magnifying glass..."
+    pendingMsg: "Pulling out the magnifying glass...",
+    failed: false
   }),
   components: {
     TeamCard,
@@ -104,24 +116,43 @@ export default {
     }
   },
   async created() {
-    const user = await this.authenticateUser();
-    this.userid = user.id;
-    this.pendingMsg = "Searching for your teams...";
-    const memberInfo = await this.findMemberInfo(this.userid);
-    const teamIds = this.getTeamIds(memberInfo);
-    const teamDetails = await this.getTeamData(teamIds);
-    const ownerRoleId = await this.getOwnerRole();
-    const teamsWithOwnership = this.checkOwnership(
-      memberInfo,
-      teamDetails,
-      ownerRoleId
-    );
-    const teamData = this.findFavTeams(memberInfo, teamsWithOwnership);
-    this.setTeams(teamData);
-    this.roles = await this.pullRoleData();
-    this.pendingData = false;
+    try {
+      await this.getAllData();
+    } catch (err) {
+      if (store.getters.isUserLoggedIn) {
+        this.pendingMsg = "Try refreshing the page";
+        this.failed = true;
+      } else {
+        this.pendingMsg = "You aren't logged in";
+        this.failed = true;
+      }
+    }
   },
   methods: {
+    async getAllData() {
+      await store.dispatch("login");
+      const user = store.getters.getUserData;
+      this.pendingMsg = "Searching for your teams...";
+      if (user === null) {
+        this.pendingMsg = "You aren't logged in";
+        this.failed = true;
+      } else {
+        this.userid = user.id;
+        const memberInfo = await this.findMemberInfo(this.userid);
+        const teamIds = this.getTeamIds(memberInfo);
+        const teamDetails = await this.getTeamData(teamIds);
+        const ownerRoleId = await this.getOwnerRole();
+        const teamsWithOwnership = this.checkOwnership(
+          memberInfo,
+          teamDetails,
+          ownerRoleId
+        );
+        const teamData = this.findFavTeams(memberInfo, teamsWithOwnership);
+        this.setTeams(teamData);
+        this.roles = await this.pullRoleData();
+        this.pendingData = false;
+      }
+    },
     async pullRoleData() {
       const rawData = await feathersClient.service("roles").find({
         query: {
@@ -141,9 +172,6 @@ export default {
         for (let j = 0; j < teamArr.data.length; j++) {
           if (teamArr.data[j].id === teamIds[i]) {
             teamArr.data[j].fav = true;
-            break;
-          } else {
-            teamArr.data[j].fav = false;
           }
         }
       }
@@ -160,9 +188,6 @@ export default {
         for (let j = 0; j < teamArr.data.length; j++) {
           if (teamArr.data[j].id === teamIds[i]) {
             teamArr.data[j].owned = true;
-            break;
-          } else {
-            teamArr.data[j].owned = false;
           }
         }
       }
@@ -198,16 +223,6 @@ export default {
       });
       return [...rawData.data];
     },
-    async authenticateUser() {
-      try {
-        const rawData = await feathersClient.reAuthenticate();
-        return { ...rawData.user };
-      } catch (err) {
-        /*eslint-disable no-console*/
-        console.log(err);
-        /*eslint-enable no-console*/
-      }
-    },
     async getTeamData(arr) {
       const gotTeams = await feathersClient.service("teams").find({
         query: {
@@ -220,6 +235,7 @@ export default {
     },
     setTeams(arrSet) {
       let teamData = arrSet.data;
+      this.teams = [];
       for (let i = 0; i < teamData.length; i++) {
         this.teams.push({
           id: teamData[i].id,

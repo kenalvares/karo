@@ -1,7 +1,7 @@
 <template>
   <v-card max-width="344" class="mx-auto">
     <v-list-item>
-      <v-list-item-avatar>
+      <v-list-item-avatar v-if="team.avatar">
         <v-img :src="team.avatar"></v-img
       ></v-list-item-avatar>
       <v-list-item-content>
@@ -12,7 +12,7 @@
     <v-card-text> {{ team.description }} </v-card-text>
 
     <v-card-actions>
-      <v-btn text color="indigo accent-4">
+      <v-btn text color="indigo accent-4" :to="'team/' + team.id">
         View
       </v-btn>
       <v-btn v-if="team.owned" text color="indigo accent-4">

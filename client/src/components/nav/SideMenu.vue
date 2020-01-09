@@ -20,6 +20,7 @@
 
 <script>
 import store from "../../store/index";
+/*eslint-disable no-console*/
 
 export default {
   name: "SideMenu",

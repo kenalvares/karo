@@ -21,7 +21,7 @@
         </v-btn>
       </v-toolbar>
       <div>
-        <CreateTeamStepper :roles="roles" />
+        <CreateTeamStepper :roles="roles" @teamCreated="closeDialog" />
       </div>
     </v-sheet>
   </v-bottom-sheet>
@@ -30,6 +30,7 @@
 <script>
 import CreateTeamStepper from "@/components/steppers/CreateTeamStepper";
 export default {
+  /*eslint-disable no-console*/
   name: "CreateTeamDialog",
   props: {
     roles: Array
@@ -39,6 +40,14 @@ export default {
   }),
   components: {
     CreateTeamStepper
+  },
+  methods: {
+    closeDialog(teamCreated) {
+      if (teamCreated) {
+        this.createTeamDialog = !this.createTeamDialog;
+        this.$emit("teamCreated", true);
+      }
+    }
   }
 };
 </script>
