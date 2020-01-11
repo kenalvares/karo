@@ -82,7 +82,12 @@
               <tbody>
                 <tr v-for="(member, i) in members" :key="member.id">
                   <td class="text-left">
-                    <v-btn text class="pa-0 ma-0" @click="removeMember(i)">
+                    <v-btn
+                      text
+                      class="pa-0 ma-0"
+                      :disabled="myMemberName(i)"
+                      @click="removeMember(i)"
+                    >
                       <v-icon class="red--text">remove_circle</v-icon>
                     </v-btn>
                     <v-chip pill>
@@ -160,6 +165,7 @@ export default {
       let localTeam = this.getLocalTeam();
       let teamInDb = null;
       for (let i = 0; i < this.members.length; i++) {
+        this.validateRoles(this.members[i].role);
         if (
           this.members[i].role === null ||
           this.members[i].role === undefined
@@ -249,6 +255,12 @@ export default {
         this.count += 1;
         this.email = "";
       }
+    },
+    myMemberName(i) {
+      if (i === 0) {
+        return true;
+      }
+      return false;
     },
     step(n) {
       let nextStep = true;

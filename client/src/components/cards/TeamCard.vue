@@ -1,15 +1,15 @@
 <template>
   <v-card max-width="344" class="mx-auto">
     <v-list-item>
-      <v-list-item-avatar v-if="team.avatar">
-        <v-img :src="team.avatar"></v-img
-      ></v-list-item-avatar>
+      <v-list-item-avatar>
+        <v-img :src="logoSrc"/>
+        </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="headline">{{ team.name }}</v-list-item-title>
       </v-list-item-content>
     </v-list-item>
 
-    <v-card-text> {{ team.description }} </v-card-text>
+    <v-card-text> {{ shortDesc }} </v-card-text>
 
     <v-card-actions>
       <v-btn text color="indigo accent-4" :to="'team/' + team.id">
@@ -32,6 +32,7 @@
 <script>
 /*eslint-disable no-console*/
 import feathersClient from "../../feathers-client";
+import store from "../../store/index";
 
 export default {
   name: "TeamCard",
@@ -45,6 +46,22 @@ export default {
         return "yellow";
       }
       return "grey";
+    },
+    logoSrc() {
+      if (
+        this.team.profilePicUrl === null ||
+        this.team.profilePicUrl === undefined ||
+        this.team.profilePicUrl === ""
+      ) {
+        return store.getters.teamLogoSrc;
+      }
+      return this.team.profilePicUrl;
+    },
+    shortDesc() {
+      if (this.team != {}) {
+        return this.team.description.substr(0, 130).concat("...");
+      }
+      return "";
     }
   },
   methods: {

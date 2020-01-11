@@ -57,19 +57,19 @@ export default new Vuex.Store({
         {
           icon: "mdi-home",
           text: "Profile",
-          route: "/profile/:id"
+          route: "/profile/"
         },
         {
           icon: "mdi-view-dashboard",
           text: "Account",
-          route: "/account/:id"
+          route: "/account/"
         }
       ]
     },
     links: null,
     loginNotice: false,
     loggedIn: false,
-    user: null
+    user: {}
   },
   getters: {
     getMainMenu(state) {
@@ -88,6 +88,8 @@ export default new Vuex.Store({
       user.firstname = state.user.firstname;
       user.lastname = state.user.lastname;
       user.email = state.user.email;
+      user.avatar = state.user.profilePicUrl;
+      user.tagline = state.user.tagline;
       return user;
     },
     getUserMenu(state) {
@@ -95,6 +97,20 @@ export default new Vuex.Store({
     },
     isUserLoggedIn(state) {
       return state.loggedIn;
+    },
+    avatarSrc(state) {
+      if (
+        state.user.avatar === null ||
+        state.user.avatar === undefined ||
+        state.user.avatar === ""
+      ) {
+        return require("@/assets/user-placeholder.jpg");
+      } else {
+        return state.user.avatar;
+      }
+    },
+    teamLogoSrc() {
+      return require("@/assets/team-placeholder.jpg");
     }
   },
   mutations: {
@@ -122,10 +138,16 @@ export default new Vuex.Store({
       context.commit("hideLoginNotice");
     },
     async login(context) {
-      const rawData = await feathersClient.reAuthenticate();
-      context.state.user = rawData.user;
-      context.commit("userLoggedIn");
-      context.commit("showLoginNotice");
+      try {
+        return await feathersClient.reAuthenticate().then(rawData => {
+          context.state.user = rawData.user;
+          context.commit("userLoggedIn");
+          context.commit("showLoginNotice");
+          return rawData;
+        });
+      } catch (err) {
+        return err;
+      }
     }
   }
 });
