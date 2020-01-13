@@ -1,3 +1,5 @@
+<!-- Empty Card -->
+<!-- Displayed when there is no data -->
 <template>
   <v-col fluid v-if="toShow">
     <v-card outlined class="mx-auto emptyCard" max-width="344">
@@ -21,7 +23,6 @@
 .emptyImg {
   width: 70%;
 }
-
 .emptyCard {
   display: flex;
   align-items: center;

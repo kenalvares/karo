@@ -1,3 +1,5 @@
+<!-- Login Form-->
+<!-- Displays short team data in card -->
 <template>
   <v-row justify="center">
     <v-col cols="12" xl="4" lg="6" md="4">

@@ -1,3 +1,5 @@
+<!-- Placeholder-->
+<!-- Displays simple placeholder for dev purposes -->
 <template>
   <div class="placeholder--body">
     <img alt="Karo" src="../../assets/logo.png" class="logo" />

@@ -1,9 +1,11 @@
+<!-- Team Card Small-->
+<!-- Displays short team data in card -->
 <template>
   <v-card max-width="344" class="mx-auto">
     <v-list-item>
       <v-list-item-avatar>
-        <v-img :src="logoSrc"/>
-        </v-list-item-avatar>
+        <v-img :src="logoSrc" />
+      </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="headline">{{ team.name }}</v-list-item-title>
       </v-list-item-content>
@@ -15,10 +17,7 @@
       <v-btn text color="indigo accent-4" :to="'team/' + team.id">
         View
       </v-btn>
-      <v-btn v-if="team.owned" text color="indigo accent-4">
-        Edit
-      </v-btn>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-btn :color="checkFav" @click="favouriteThisTeam(team.id)" icon>
         <v-icon>star</v-icon>
       </v-btn>
@@ -35,18 +34,20 @@ import feathersClient from "../../feathers-client";
 import store from "../../store/index";
 
 export default {
-  name: "TeamCard",
+  name: "TeamCardSmall",
   props: {
     team: Object,
     userid: String
   },
   computed: {
+    // Check of project is fav and return fav icon color
     checkFav() {
       if (this.team.fav === true) {
         return "yellow";
       }
       return "grey";
     },
+    // Return placeholder if no team profilePicUrl, or set team logo
     logoSrc() {
       if (
         this.team.profilePicUrl === null ||
@@ -57,6 +58,7 @@ export default {
       }
       return this.team.profilePicUrl;
     },
+    // Shorten team description to 130 characters
     shortDesc() {
       if (this.team != {}) {
         return this.team.description.substr(0, 130).concat("...");
@@ -65,14 +67,15 @@ export default {
     }
   },
   methods: {
+    // Mark team as favourite
     async favouriteThisTeam() {
-      const rawData = await feathersClient.service("members").find({
+      const raw = await feathersClient.service("members").find({
         query: {
           teamid: this.team.id,
           userid: this.userid
         }
       });
-      const memberId = Number.parseInt(rawData.data[0].id);
+      const memberId = Number.parseInt(raw.data[0].id);
       await feathersClient.service("members").patch(memberId, {
         fav: !this.team.fav
       });

@@ -2,7 +2,7 @@
   <v-container class="grey lighten-5">
     <v-row no-gutters v-if="!pendingData">
       <v-col cols="12">
-        <CreateTeamDialog :roles="roles" @teamCreated="getAllData" />
+        <CreateTeamDialog :roles="roles" @teamCreated="fetchData" />
         <v-btn-toggle
           v-model="teamFilter"
           tile
@@ -24,7 +24,7 @@
     </v-row>
     <v-row v-if="!pendingData">
       <v-col v-for="team in selectedTeams" :key="team.id" cols="12" sm="4">
-        <TeamCard :team="team" :userid="userid" />
+        <TeamCardSmall :team="team" :userid="userid" />
       </v-col>
       <EmptyCard
         :toShow="emptyTeamArray"
@@ -71,7 +71,7 @@
 </style>
 <script>
 /*eslint-disable no-console*/
-import TeamCard from "@/components/cards/TeamCard";
+import TeamCardSmall from "@/components/cards/TeamCardSmall";
 import CreateTeamDialog from "@/components/sheets/CreateTeamDialog";
 import EmptyCard from "@/components/cards/EmptyCard";
 import feathersClient from "../feathers-client";
@@ -90,7 +90,7 @@ export default {
     failed: false
   }),
   components: {
-    TeamCard,
+    TeamCardSmall,
     CreateTeamDialog,
     EmptyCard
   },
@@ -116,41 +116,44 @@ export default {
     }
   },
   async created() {
-    try {
-      await this.getAllData();
-    } catch (err) {
-      if (store.getters.isUserLoggedIn) {
-        this.pendingMsg = "Try refreshing the page";
-        this.failed = true;
-      } else {
-        this.pendingMsg = "You aren't logged in";
-        this.failed = true;
-      }
-    }
+    await this.fetchData();
+  },
+  watch: {
+    $route: "fetchData"
   },
   methods: {
-    async getAllData() {
-      await store.dispatch("login");
-      const user = store.getters.getUserData;
-      this.pendingMsg = "Searching for your teams...";
-      if (user === null) {
-        this.pendingMsg = "You aren't logged in";
-        this.failed = true;
-      } else {
-        this.userid = user.id;
-        const memberInfo = await this.findMemberInfo(this.userid);
-        const teamIds = this.getTeamIds(memberInfo);
-        const teamDetails = await this.getTeamData(teamIds);
-        const ownerRoleId = await this.getOwnerRole();
-        const teamsWithOwnership = this.checkOwnership(
-          memberInfo,
-          teamDetails,
-          ownerRoleId
-        );
-        const teamData = this.findFavTeams(memberInfo, teamsWithOwnership);
-        this.setTeams(teamData);
-        this.roles = await this.pullRoleData();
-        this.pendingData = false;
+    async fetchData() {
+      try {
+        await store.dispatch("login");
+        const user = store.getters.getUserData;
+        this.pendingMsg = "Searching for your teams...";
+        if (user === null) {
+          this.pendingMsg = "You aren't logged in";
+          this.failed = true;
+        } else {
+          this.userid = user.id;
+          const memberInfo = await this.findMemberInfo(this.userid);
+          const teamIds = this.getTeamIds(memberInfo);
+          const teamDetails = await this.getTeamData(teamIds);
+          const ownerRoleId = await this.getOwnerRole();
+          const teamsWithOwnership = this.checkOwnership(
+            memberInfo,
+            teamDetails,
+            ownerRoleId
+          );
+          const teamData = this.findFavTeams(memberInfo, teamsWithOwnership);
+          this.setTeams(teamData);
+          this.roles = await this.pullRoleData();
+          this.pendingData = false;
+        }
+      } catch (err) {
+        if (store.getters.isUserLoggedIn) {
+          this.pendingMsg = "Try refreshing the page";
+          this.failed = true;
+        } else {
+          this.pendingMsg = "You aren't logged in";
+          this.failed = true;
+        }
       }
     },
     async pullRoleData() {

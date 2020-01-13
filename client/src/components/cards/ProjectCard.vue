@@ -1,24 +1,23 @@
+<!-- Project Card -->
+<!-- Displays project data in a card -->
 <template>
   <v-card max-width="344" class="mx-auto">
     <v-list-item>
       <v-list-item-avatar>
-        <v-img :src="project.avatar"></v-img
-      ></v-list-item-avatar>
+        <v-img :src="project.avatar"></v-img>
+      </v-list-item-avatar>
       <v-list-item-content>
-        <v-list-item-title class="headline">{{
-          project.title
-        }}</v-list-item-title>
+        <v-list-item-title class="headline">
+          {{ project.title }}
+        </v-list-item-title>
         <v-list-item-subtitle>{{ project.team }}</v-list-item-subtitle>
       </v-list-item-content>
       <v-icon right :color="iconColor">{{ projectStatus }}</v-icon>
     </v-list-item>
-
     <v-img :src="project.backgroundUrl" height="194"></v-img>
-
     <v-card-text>
       {{ project.description }}
     </v-card-text>
-
     <v-card-actions>
       <v-btn text color="indigo accent-4">
         View
@@ -41,6 +40,7 @@ export default {
     iconColor: "test"
   }),
   computed: {
+    // Set project status icon and color
     projectStatus() {
       if (this.project.status === "ongoing") {
         this.setIconColor("red");
@@ -52,6 +52,7 @@ export default {
       this.setIconColor("info");
       return "pause";
     },
+    // Check if project is faved and return fav icon color
     checkFav() {
       if (this.project.fav === true) {
         return "yellow";
@@ -60,9 +61,11 @@ export default {
     }
   },
   methods: {
+    // Set icon color
     setIconColor(color) {
       this.iconColor = color;
     },
+    // Mark project as favourite
     favouriteThisProject() {
       this.project.fav = !this.project.fav;
     }
