@@ -63,6 +63,37 @@
   </v-card>
 </template>
 
+<style lang="scss" scoped>
+.flex-column {
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  flex-direction: column;
+}
+
+.member-name {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.member-email {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  border-radius: 0.2rem;
+  letter-spacing: 0.1rem;
+  padding: 0.1rem 0.3rem;
+  margin: 0.1rem 0.5rem;
+  background-color: #e6e6e6;
+}
+
+.border-list-item {
+  border: 1px solid #ccc;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-bottom-width: 0;
+}
+</style>
+
 <script>
 import router from "@/router/index";
 export default {

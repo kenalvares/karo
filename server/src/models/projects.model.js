@@ -32,6 +32,16 @@ module.exports = function(app) {
         type: DataTypes.STRING,
         required: false,
         allowNull: true
+      },
+      startedAt: {
+        type: DataTypes.STRING,
+        required: true,
+        allowNull: false
+      },
+      finishedAt: {
+        type: DataTypes.STRING,
+        required: true,
+        allowNull: false
       }
     },
     {
