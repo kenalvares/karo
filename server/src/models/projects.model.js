@@ -35,13 +35,13 @@ module.exports = function(app) {
       },
       startedAt: {
         type: DataTypes.STRING,
-        required: true,
-        allowNull: false
+        allowNull: true,
+        required: false
       },
       finishedAt: {
         type: DataTypes.STRING,
-        required: true,
-        allowNull: false
+        allowNull: true,
+        required: false
       }
     },
     {

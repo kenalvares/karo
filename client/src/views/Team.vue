@@ -209,82 +209,14 @@
                   </v-card>
                 </v-col>
               </v-row>
-              <v-btn color="primary" @click="step(4)">
+              <v-btn color="primary" @click="createProject()">
                 Continue
               </v-btn>
 
               <v-btn text @click="closeProjectCreation()"
                 >Cancel</v-btn
               > </v-stepper-content
-            ><v-stepper-step step="4">Set Duration</v-stepper-step>
-            <v-stepper-content step="4">
-              <v-row>
-                <v-col cols="6">
-                  <v-menu
-                    ref="startDateMenu"
-                    v-model="startDateMenu"
-                    :close-on-content-click="true"
-                    transition="scale-transition"
-                    offset-y
-                    max-width="290px"
-                    min-width="290px"
-                  >
-                    <template v-slot:activator="{ on }">
-                      <v-text-field
-                        v-model="startDateFormatted"
-                        label="Start Date"
-                        hint="DD/MM/YYYY format"
-                        persistent-hint
-                        prepend-icon="event"
-                        @blur="
-                          project.startDate = parseDate(startDateFormatted)
-                        "
-                        v-on="on"
-                      ></v-text-field>
-                    </template>
-                    <v-date-picker
-                      v-model="project.startDate"
-                      no-title
-                      @input="startDateMenu = false"
-                    ></v-date-picker>
-                  </v-menu>
-                </v-col>
-                <v-col cols="6">
-                  <v-menu
-                    ref="endDateMenu"
-                    v-model="endDateMenu"
-                    :close-on-content-click="true"
-                    transition="scale-transition"
-                    offset-y
-                    max-width="290px"
-                    min-width="290px"
-                  >
-                    <template v-slot:activator="{ on }">
-                      <v-text-field
-                        v-model="endDateFormatted"
-                        label="End Date"
-                        hint="DD/MM/YYYY format"
-                        persistent-hint
-                        prepend-icon="event"
-                        @blur="project.endDate = parseDate(endDateFormatted)"
-                        v-on="on"
-                      ></v-text-field>
-                    </template>
-                    <v-date-picker
-                      v-model="project.endDate"
-                      no-title
-                      @input="endDateMenu = false"
-                    ></v-date-picker>
-                  </v-menu>
-                </v-col>
-              </v-row>
-
-              <v-btn color="primary" @click="createProject">
-                Continue
-              </v-btn>
-
-              <v-btn text @click="closeProjectCreation()">Cancel</v-btn>
-            </v-stepper-content>
+            >
           </v-stepper-items>
         </v-stepper>
       </v-card>
