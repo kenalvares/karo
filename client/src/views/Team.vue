@@ -202,21 +202,69 @@
                         </v-expansion-panel-header>
                         <v-expansion-panel-content
                           class="pt-4 px-3 description-text"
-                          >{{ item.body }}
+                          >{{ item.description }}
                         </v-expansion-panel-content>
                       </v-expansion-panel>
                     </v-expansion-panels>
                   </v-card>
                 </v-col>
               </v-row>
-              <v-btn color="primary" @click="createProject()">
-                Continue
-              </v-btn>
 
-              <v-btn text @click="closeProjectCreation()"
-                >Cancel</v-btn
-              > </v-stepper-content
-            >
+              <v-dialog v-model="confirmDialog" width="500">
+                <template v-slot:activator="{ on }">
+                  <v-btn color="primary" dark v-on="on">
+                    Create
+                  </v-btn>
+                </template>
+
+                <v-card>
+                  <v-card-title v-if="!loader.creatingProject" class="headline grey lighten-4" primary-title>
+                    One Last Check
+                  </v-card-title>
+                  
+                  <v-card-title v-if="loader.creatingProject" class="headline grey lighten-4" primary-title>
+                    One Second
+                  </v-card-title>
+
+                  <v-card-text v-if="!loader.creatingProject" class="pa-2 px-3">
+                    {{ firstName }}, are you ready to start this project?
+                  </v-card-text>
+
+                  <v-card-text v-if="loader.creatingProject" class="fill-height flex-column-center">
+                    <v-progress-circular
+                      :size="100"
+                      :width="5"
+                      color="primary"
+                      indeterminate
+                      class="mb-5"
+                    >
+                      <v-icon color="grey">close</v-icon>
+                    </v-progress-circular                    >
+                    <span>{{ loader.creatingProjectMsg }}</span>
+              </v-card-text>
+
+                  <v-divider></v-divider>
+
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+
+                    <v-btn color="primary" @click="createProject()">
+                      Start Project
+                    </v-btn>
+                    <v-btn
+                      @click="
+                        step(1);
+                        confirmDialog = !confirmDialog;
+                      "
+                    >
+                      Check Details
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+
+              <v-btn text @click="closeProjectCreation()">Cancel</v-btn>
+            </v-stepper-content>
           </v-stepper-items>
         </v-stepper>
       </v-card>
@@ -254,9 +302,10 @@ import TeamDetailsCard from "@/components/cards/TeamDetailsCard";
 //import router from "../router/index";
 export default {
   name: "Team",
-  data: vm => ({
-    createProjectStepper: 4,
+  data: () => ({
+    createProjectStepper: 1,
     dialog: false,
+    confirmDialog: false,
     heatmap: false,
     team: {},
     user: {},
@@ -266,19 +315,16 @@ export default {
     loader: {
       pendingData: true,
       pendingMsg: "Getting Team Data...",
-      failed: false
+      failed: false,
+      creatingProject: false,
+      creatingProjectMsg: "Creating Project..."
     },
+    status: [],
     project: {
       name: "",
       vision: "",
-      backlog: [],
-      startDate: new Date().toISOString().substr(0, 10),
-      endDate: new Date().toISOString().substr(0, 10)
+      backlog: []
     },
-    startDateFormatted: vm.formatDate(new Date().toISOString().substr(0, 10)),
-    endDateFormatted: vm.formatDate(new Date().toISOString().substr(0, 10)),
-    startDateMenu: false,
-    endDateMenu: false,
     errors: null,
     visionMaxChars: [v => v.length <= 300 || "Max 300 characters"],
     projectnameMaxChars: [v => v.length <= 60 || "Max 60 characters"],
@@ -289,11 +335,20 @@ export default {
     TeamDetailsCard
   },
   computed: {
-    computedStartDateFormatted() {
-      return this.formatDate(this.project.startDate);
-    },
-    computedEndDateFormatted() {
-      return this.formatDate(this.project.endDate);
+    firstName() {
+      let str = "";
+      if (
+        this.user.firstname === {} ||
+        this.user.firstname === null ||
+        this.user.firstname === undefined
+      ) {
+        str = "Hey";
+      } else {
+        str =
+          this.user.firstname.charAt(0).toUpperCase() +
+          this.user.firstname.slice(1);
+      }
+      return str;
     },
     logoSrc() {
       if (
@@ -313,18 +368,6 @@ export default {
     }
   },
   methods: {
-    formatDate(date) {
-      if (!date) return null;
-
-      const [year, month, day] = date.split("-");
-      return `${day}/${month}/${year}`;
-    },
-    parseDate(date) {
-      if (!date) return null;
-
-      const [month, day, year] = date.split("/");
-      return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-    },
     itemColor(priority) {
       if (this.heatmap) {
         if (this.project.backlog.length < 4) {
@@ -352,7 +395,7 @@ export default {
       let item = {};
       item.priority = this.project.backlog.length + 1;
       item.title = this.backlogItemTitle;
-      item.body = this.backlogItemBody;
+      item.description = this.backlogItemBody;
       this.project.backlog.push(item);
       this.backlogItemTitle = "";
       this.backlogItemBody = "";
@@ -404,6 +447,8 @@ export default {
           this.errors =
             "Please add some user-stories or features to the product backlog. This can be edited later";
           nextStep = false;
+        } else {
+          n = 3;
         }
       }
 
@@ -418,8 +463,29 @@ export default {
       this.project.backlog = [];
       this.dialog = !this.dialog;
     },
-    createProject() {
-      console.log("Project Created!", this.project);
+    closeConfirmDialog() {
+      this.confirmDialog = !this.confirmDialog;
+    },
+    async createProject() {
+      let ongoingId = "";
+      for (let i = 0; i < this.status.length; i++) {
+        if (this.status[i].status === "ongoing") {
+          ongoingId = this.status[i].id;
+        }
+      }
+      let project = {};
+      project.teamid = this.team.id;
+      project.name = this.project.name;
+      project.vision = this.project.vision;
+      project.status = ongoingId;
+      const raw = await feathersClient.service("projects").create(project);
+      for (let i = 0; i < this.project.backlog.length; i++) {
+        this.project.backlog[i].projectid = raw.id;
+        await feathersClient.service("backlog-items").create(this.project.backlog[i]);
+      }
+      this.closeConfirmDialog();
+      console.log("Project Created!", raw);
+      this.closeProjectCreation();
     },
     async getMemberData(userid) {
       const user = await feathersClient.service("users").find({
@@ -432,6 +498,15 @@ export default {
       memberData.name = user.data[0].firstname + " " + user.data[0].lastname;
       memberData.email = user.data[0].email;
       return memberData;
+    },
+    async getStatus() {
+      const raw = await feathersClient.service("project-status").find({
+        query: {
+          $select: ["id", "status"]
+        }
+      });
+      const status = raw.data;
+      return status;
     },
     async fetchData() {
       try {
@@ -481,16 +556,22 @@ export default {
           members[i].name = memberData.name;
           members[i].email = memberData.email;
         }
+        let status = await this.getStatus();
         this.team = team;
         this.user = me;
         this.members = members;
         this.roles = roles;
+        this.status = status;
         this.loader.pendingData = false;
       } catch (err) {
         if (err.code === 401) {
           this.loader.pendingMsg = "You aren't logged in";
           this.loader.failed = true;
+        } else if (err.code === 408) {
+          this.loader.pendingMsg = "You aren't logged in";
+          this.loader.failed = true;
         } else {
+          console.log(err);
           this.loader.pendingMsg = "Try refreshing the page";
           this.loader.failed = true;
         }
@@ -498,10 +579,6 @@ export default {
     }
   },
   async created() {
-    const date = new Date();
-    var str = `${date.getUTCFullYear()}-${date.getUTCMonth() +
-      1}-${date.getUTCDate()}`;
-    console.log(str);
     await this.fetchData();
   },
   watch: {
