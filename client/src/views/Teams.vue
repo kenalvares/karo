@@ -117,6 +117,7 @@ export default {
   },
   async created() {
     await this.fetchData();
+    console.log(this.teams);
   },
   watch: {
     $route: "fetchData"

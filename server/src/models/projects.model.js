@@ -23,7 +23,7 @@ module.exports = function(app) {
         required: true,
         allowNull: false
       },
-      logo: {
+      background: {
         type: DataTypes.STRING,
         required: false,
         allowNull: true

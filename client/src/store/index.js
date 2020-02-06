@@ -9,7 +9,7 @@ export default new Vuex.Store({
   state: {
     sideDrawer: false,
     menus: {
-      loggedOutMainMenu: [
+      loggedOutMenu: [
         {
           icon: "mdi-home",
           text: "Home",
@@ -38,6 +38,11 @@ export default new Vuex.Store({
           route: "/dashboard"
         },
         {
+          icon: "mdi-account-multiple",
+          text: "Teams",
+          route: "/teams"
+        },
+        {
           icon: "mdi-file-multiple",
           text: "Projects",
           route: "/projects"
@@ -48,9 +53,14 @@ export default new Vuex.Store({
           route: "/chats"
         },
         {
-          icon: "mdi-account-multiple",
-          text: "Teams",
-          route: "/teams"
+          icon: "menu_book",
+          text: "Docs",
+          route: "/docs"
+        },
+        {
+          icon: "report_problem",
+          text: "Support",
+          route: "/support"
         }
       ],
       userMenu: [
@@ -69,14 +79,15 @@ export default new Vuex.Store({
     links: null,
     loginNotice: false,
     loggedIn: false,
-    user: {}
+    user: {},
+    currentTeam: {}
   },
   getters: {
     getMainMenu(state) {
       if (state.loggedIn) {
         return state.menus.loggedInMainMenu;
       } else {
-        return state.menus.loggedOutMainMenu;
+        return state.menus.loggedOutMenu;
       }
     },
     getSideDrawer(state) {
@@ -91,6 +102,9 @@ export default new Vuex.Store({
       user.avatar = state.user.profilePicUrl;
       user.tagline = state.user.tagline;
       return user;
+    },
+    getTeamData(state) {
+      return state.currentTeam;
     },
     getUserMenu(state) {
       return state.menus.userMenu;
@@ -129,9 +143,15 @@ export default new Vuex.Store({
     userLoggedOut(state) {
       state.loggedIn = false;
       state.user = null;
+    },
+    setCurrentTeam(state, raw) {
+      state.currentTeam = { ...raw.team };
     }
   },
   actions: {
+    setTeamData(context, team) {
+      context.commit("setCurrentTeam", team);
+    },
     async logout(context) {
       await feathersClient.logout();
       context.commit("userLoggedOut");

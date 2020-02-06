@@ -29,7 +29,8 @@ export default {
   }),
   computed: {
     links() {
-      return store.getters.getMainMenu;
+      let links = store.getters.getMainMenu;
+      return links;
     },
     drawer: {
       get: function() {
@@ -39,6 +40,14 @@ export default {
         this.sideDrawer = store.getters.getSideDrawer;
       }
     }
+  },
+  methods: {
+    refreshLinks() {
+      this.links;
+    }
+  },
+  watch: {
+    $route: "refreshLinks"
   }
 };
 </script>
