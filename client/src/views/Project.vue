@@ -13,16 +13,19 @@
 
         <v-card-text class="pt-0">
           <div class="display-1 font-weight-thin">{{ project.name }}</div>
-          <div class="subtitle font-weight-light mb-2">{{ project.team }}</div>
+          <div class="font-weight-light">{{ project.vision }}</div>
+          <div class="title font-weight-light mb-2">
+            {{ project.team }}
+          </div>
           <div class="subheading font-weight-light grey--text">
-            Last Sprint Performance
+            Status: {{ project.status }}
           </div>
           <v-divider class="my-2"></v-divider>
           <v-icon class="mr-2" small>
             mdi-clock
           </v-icon>
           <span class="caption grey--text font-weight-light"
-            >completed 17 days ago</span
+            >updated {{ sinceUpdate }}</span
           >
         </v-card-text>
       </v-card>
@@ -54,47 +57,35 @@
           >
             <v-expansion-panel-header class="text-capitalize">
               <v-row>
-                <v-col cols="1" class="my-auto py-auto mx-0 px-0" >
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ onInc }">
-                      <v-btn
-                        icon
-                        class="ma-0 pa-0"
-                        :disabled="item.priority === 1 ? true : false"
-                        v-on="onInc"
-                        @click="increasePriority(item.priority)"
-                      >
-                        <v-icon small>arrow_drop_up</v-icon>
-                      </v-btn>
-                    </template>
-                    <span>Increase priority</span>
-                  </v-tooltip>
+                <v-col cols="1" class="my-auto py-auto mx-0 px-0" :width="0">
+                  <v-btn
+                    icon
+                    class="ma-0 pa-0"
+                    :disabled="item.priority === 1 ? true : false"
+                    @click="increasePriority(item.priority)"
+                  >
+                    <v-icon small>arrow_drop_up</v-icon>
+                  </v-btn>
+
                   <small>{{ item.priority }}</small>
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ onDec }">
-                      <v-btn
-                        icon
-                        class="ma-0 pa-0"
-                        :disabled="
-                          item.priority === project.backlog.length
-                            ? true
-                            : false
-                        "
-                        v-on="onDec"
-                        @click="decreasePriority(item.priority)"
-                      >
-                        <v-icon small>arrow_drop_down</v-icon>
-                      </v-btn>
-                    </template>
-                    <span>Decrease priority</span>
-                  </v-tooltip>
+
+                  <v-btn
+                    icon
+                    class="ma-0 pa-0"
+                    :disabled="
+                      item.priority === project.backlog.length ? true : false
+                    "
+                    @click="decreasePriority(item.priority)"
+                  >
+                    <v-icon small>arrow_drop_down</v-icon>
+                  </v-btn>
                 </v-col>
-                <v-col cols="10" class="my-auto py-auto mx-0 px-1">
+                <v-col cols="10" class="my-auto py-auto">
                   <span class="header-text">{{ item.title }}</span>
                 </v-col>
-                <v-col cols="1" class="mx-0 px-0">
+                <v-col cols="1" class="mx-0 px-0" :width="0">
                   <v-btn
-                    @click="removeItem(item.priority - 1)"
+                    @click="removeItem(item.priority - 1, item.id)"
                     icon
                     class="ma-0 pa-0 red--text text--darken-4"
                   >
@@ -125,34 +116,82 @@
 /*eslint-disable no-unused-vars*/
 import store from "@/store/index";
 import router from "@/router/index";
+import feathersClient from "../feathers-client";
+/*eslint-disable no-console*/
 export default {
   name: "Project",
   data: () => ({
-    project: {
-      id: "14",
-      name: "Karo",
-      team: "Group 5",
-      backlog: [
-        {
-          priority: 1,
-          title: "Signups",
-          description: "User signup with email ID"
-        },
-        {
-          priority: 2,
-          title: "Logins",
-          description: "User can login with email ID and password"
-        },
-        {
-          priority: 3,
-          title: "Friends",
-          description: "User can add friends"
-        }
-      ]
-    },
+    project: {},
     heatmap: false
   }),
+  async created() {
+    await this.fetchData();
+  },
   methods: {
+    async fetchData() {
+      let project = await this.getProject();
+      project.backlog = await this.getBacklog(project);
+      this.project = project;
+    },
+    async getProject() {
+      // Get Project Data
+      const raw = await feathersClient.service("projects").find({
+        query: {
+          id: this.$router.history.current.params.id
+        }
+      });
+      // Filter Project Data
+      let filtered = { ...raw.data[0] };
+      // Sanitize strings
+      if (
+        filtered.background === null ||
+        filtered.background === undefined ||
+        filtered.background === ""
+      ) {
+        filtered.background = "";
+      }
+      if (
+        filtered.finishedAt === null ||
+        filtered.finishedAt === undefined ||
+        filtered.finishedAt === ""
+      ) {
+        filtered.finishedAt = "";
+      }
+      const updatedData = filtered.updatedAt.split(" ");
+      filtered.updatedAt = updatedData[0];
+      const createdData = filtered.createdAt.split("T");
+      filtered.createdAt = createdData[0];
+      // Get team name
+      const raw2 = await feathersClient.service("teams").find({
+        query: {
+          id: filtered.teamid,
+          $select: ["name"]
+        }
+      });
+      const team = raw2.data[0];
+      filtered.team = team.name;
+      delete filtered.teamid;
+      // Get project status
+      let raw3 = await feathersClient.service("project-status").find({
+        query: {
+          id: filtered.status,
+          $select: ["status"]
+        }
+      });
+      const gotStatus = raw3.data[0];
+      filtered.status =
+        gotStatus.status[0].toUpperCase() + gotStatus.status.slice(1);
+      return filtered;
+    },
+    async getBacklog(project) {
+      const raw = await feathersClient.service("backlog-items").find({
+        query: {
+          projectid: project.id,
+          $select: ["id", "priority", "title", "description"]
+        }
+      });
+      return [...raw.data];
+    },
     itemColor(priority) {
       if (this.heatmap) {
         if (this.project.backlog.length < 4) {
@@ -175,6 +214,42 @@ export default {
       } else {
         return "white";
       }
+    },
+    async removeItem(i, id) {
+      await feathersClient.service("backlog-items").remove(id);
+      this.project.backlog.splice(i, 1);
+      for (let j = i; j < this.project.backlog.length; j++) {
+        this.project.backlog[j].priority = this.project.backlog[j].priority - 1;
+        await feathersClient
+          .service("backlog-items")
+          .patch(this.project.backlog[j].id, {
+            priority: this.project.backlog[j].priority
+          });
+      }
+    },
+    async increasePriority(i) {
+      if (i <= 1) {
+        this.project.backlog[i - 1].priority = i;
+      } else {
+        let temp = {};
+        this.project.backlog[i - 1].priority = i - 1;
+        this.project.backlog[i - 2].priority = i;
+        temp = this.project.backlog[i - 1];
+        this.project.backlog[i - 1] = this.project.backlog[i - 2];
+        this.project.backlog[i - 2] = temp;
+      }
+    },
+    decreasePriority(i) {
+      if (i >= this.project.backlog.length) {
+        this.project.backlog[i - 1].priority = i;
+      } else {
+        let temp = {};
+        this.project.backlog[i - 1].priority = i + 1;
+        this.project.backlog[i].priority = i;
+        temp = this.project.backlog[i - 1];
+        this.project.backlog[i - 1] = this.project.backlog[i];
+        this.project.backlog[i] = temp;
+      }
     }
   },
   computed: {
@@ -183,6 +258,24 @@ export default {
         return this.project.backlog.length + " item";
       }
       return this.project.backlog.length + " items";
+    },
+    sinceUpdate() {
+      let str = "";
+      let date = new Date();
+      const updatedAt = new Date(this.project.updatedAt);
+      const today = new Date(
+        `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
+      );
+      const timeDifference = today.getTime() - updatedAt.getTime();
+      const dayDifference = Math.ceil(timeDifference / (1000 * 3600 * 24));
+      if (dayDifference < 1) {
+        str = `today`;
+      } else if (dayDifference == 1) {
+        str = `${dayDifference} day ago`;
+      } else {
+        str = `${dayDifference} days ago`;
+      }
+      return str;
     }
   }
 };
