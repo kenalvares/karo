@@ -130,8 +130,9 @@ export default {
               $select: ["name", "profilePicUrl"]
             }
           });
-          teams[i].name = teamInfo.data[i].name;
-          teams[i].avatar = teamInfo.data[i].profilePicUrl;
+          teamInfo = [...teamInfo.data];
+          teams[i].name = teamInfo.name;
+          teams[i].avatar = teamInfo.profilePicUrl;
           let rawProjects = await feathersClient.service("projects").find({
             query: {
               teamid: teams[i].teamid,

@@ -118,9 +118,13 @@
               </v-col>
             </v-row>
           </v-flex>
-          <v-flex v-if="!me && !friends" class="grey darken-4">
+          <v-flex v-if="!me" class="grey darken-4">
             <v-col class="flex-row">
-              <v-btn @click="addFriend()" class="secondary mr-3">
+              <v-btn
+                @click="addFriend()"
+                v-if="!friends"
+                class="secondary mr-3"
+              >
                 Friend
                 <v-icon right>add</v-icon>
               </v-btn>

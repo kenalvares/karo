@@ -165,7 +165,6 @@ export default {
       let localTeam = this.getLocalTeam();
       let teamInDb = null;
       for (let i = 0; i < this.members.length; i++) {
-        this.validateRoles(this.members[i].role);
         if (
           this.members[i].role === null ||
           this.members[i].role === undefined
@@ -186,6 +185,7 @@ export default {
             }
           }
         }
+        console.log(teamInDb);
         await feathersClient
           .service("teams")
           .on("created", team => (teamInDb = team));

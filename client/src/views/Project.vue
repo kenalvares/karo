@@ -13,7 +13,7 @@
 
         <v-card-text class="pt-0">
           <div class="display-1 font-weight-thin">{{ project.name }}</div>
-          <div class="title font-weight-light mb-2">{{ project.team }}</div>
+          <div class="subtitle font-weight-light mb-2">{{ project.team }}</div>
           <div class="subheading font-weight-light grey--text">
             Last Sprint Performance
           </div>
@@ -54,7 +54,7 @@
           >
             <v-expansion-panel-header class="text-capitalize">
               <v-row>
-                <v-col cols="1" class="my-auto py-auto mx-0 px-0" :width="0">
+                <v-col cols="1" class="my-auto py-auto mx-0 px-0" >
                   <v-tooltip bottom>
                     <template v-slot:activator="{ onInc }">
                       <v-btn
@@ -92,7 +92,7 @@
                 <v-col cols="10" class="my-auto py-auto mx-0 px-1">
                   <span class="header-text">{{ item.title }}</span>
                 </v-col>
-                <v-col cols="1" class="mx-0 px-0" :width="0">
+                <v-col cols="1" class="mx-0 px-0">
                   <v-btn
                     @click="removeItem(item.priority - 1)"
                     icon
