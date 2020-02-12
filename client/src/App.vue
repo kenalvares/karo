@@ -1,18 +1,22 @@
 <template>
+  <!-- Main vuetify app component containing entire view of application -->
   <v-app id="inspire">
+    <!-- Left-Hand Side Navigation Menu -->
     <SideMenu />
 
+    <!-- Top App Navigation Bar -->
     <TopMenu />
 
     <!-- Sizes your content based upon application components -->
     <v-content>
-      <!-- Provides the application the proper gutter -->
+      <!-- Provides the application with the proper gutter -->
       <v-container fluid>
-        <!-- If using vue-router -->
+        <!-- Contains all views from vue-router -->
         <router-view />
       </v-container>
     </v-content>
 
+    <!-- App Footer -->
     <v-footer elevation="2" color="lightgrey" app inset id="vFooter">
       <span>&copy; 2020 - Karo</span>
     </v-footer>
