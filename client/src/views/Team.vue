@@ -62,6 +62,15 @@ export default {
         updatedAt: String
       */
     },
+    members: [
+      /*
+        userid: String,
+        name: String,
+        email: String,
+        role: String,
+        fav: Boolean
+      */
+    ],
     user: {
       /*
         id: String,

@@ -5,14 +5,16 @@
     <v-row>
       <v-col cols="2">
         <v-flex class="pa-5">
+          <!-- Team Logo -->
           <v-avatar size="164">
             <v-img :src="logoSrc" />
           </v-avatar>
         </v-flex>
       </v-col>
       <v-col cols="10" class="flex-column">
+        <!-- Team Name -->
         <v-card-title>{{ team.name }}</v-card-title>
-
+        <!-- Team Description -->
         <v-card-subtitle>
           {{ team.description }}
         </v-card-subtitle>
@@ -20,12 +22,13 @@
     </v-row>
 
     <v-card-actions>
+      <!-- Edit Team -->
       <v-btn v-if="owned" text color="indigo accent-4">
         Edit
       </v-btn>
 
       <v-spacer></v-spacer>
-
+      <!-- View team members -->
       <v-btn text @click="showMembers = !showMembers">
         Members
         <v-icon right>{{
@@ -42,11 +45,14 @@
           :key="member.userid"
           class="border-list-item"
         >
+          <!-- Member name -->
           <span class="member-name">{{ member.name }}</span>
+          <!-- Member email -->
           <span class="member-email">{{ member.email }}</span>
           <v-spacer />
-
+          <!-- Member Role -->
           <v-chip>{{ member.role }}</v-chip>
+          <!-- View Profile -->
           <v-btn
             icon
             class="mx-2"
@@ -54,6 +60,7 @@
           >
             <v-icon>person</v-icon>
           </v-btn>
+          <!-- Message this user -->
           <v-btn icon class="mx-2">
             <v-icon>message</v-icon>
           </v-btn>
@@ -101,8 +108,23 @@ export default {
   props: {
     logoSrc: String,
     team: Object,
-    owned: Boolean,
-    members: Array
+    /*
+        id: String,
+        profilePicUrl: String,
+        name: String,
+        description: String,
+        createdAt: String,
+        updatedAt: String
+      */
+    members: Array,
+    /*
+        userid: String,
+        name: String,
+        email: String,
+        role: String,
+        fav: Boolean
+      */
+    owned: Boolean
   },
   data: () => ({
     showMembers: false
