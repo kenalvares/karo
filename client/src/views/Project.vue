@@ -29,9 +29,10 @@
           >
         </v-card-text>
       </v-card>
+      <v-card class="mx-auto text-center grey"> </v-card>
     </v-col>
     <v-col cols="9">
-      <v-card outlined flat>
+      <v-card>
         <v-toolbar flat :height="60">
           <v-icon left>list</v-icon>
           <strong>Product Backlog</strong>
@@ -47,17 +48,29 @@
             label="Show Heatmap?"
             color="red"
             light
+            class="px-2"
           />
+          <v-btn
+            :dense="true"
+            @click="showBacklog = !showBacklog"
+            class="px-2"
+            outlined
+            :color="showBacklogColor"
+            >{{ showBacklogText }}</v-btn
+          >
         </v-toolbar>
-        <v-expansion-panels :accordion="true" :flat="true">
+        <v-expansion-panels v-if="showBacklog" :accordion="true" :flat="true">
           <v-expansion-panel
             v-for="item in project.backlog"
             :key="item.priority"
             :class="itemColor(item.priority)"
           >
-            <v-expansion-panel-header class="text-capitalize">
-              <v-row>
-                <v-col cols="1" class="my-auto py-auto mx-0 px-0" :width="0">
+            <v-expansion-panel-header :ripple="true" class="text-capitalize">
+              <template v-slot:actions>
+                <v-icon>keyboard_arrow_down</v-icon>
+              </template>
+              <section class="backlog-item_row">
+                <div class="backlog-item_controls">
                   <v-btn
                     icon
                     class="ma-0 pa-0"
@@ -79,11 +92,11 @@
                   >
                     <v-icon small>arrow_drop_down</v-icon>
                   </v-btn>
-                </v-col>
-                <v-col cols="10" class="my-auto py-auto">
+                </div>
+                <div class="backlog-item_title">
                   <span class="header-text">{{ item.title }}</span>
-                </v-col>
-                <v-col cols="1" class="mx-0 px-0" :width="0">
+                </div>
+                <div class="backlog-item_priority">
                   <v-btn
                     @click="removeItem(item.priority - 1, item.id)"
                     icon
@@ -91,8 +104,8 @@
                   >
                     <v-icon small class="mx-0 px-0">close</v-icon>
                   </v-btn>
-                </v-col>
-              </v-row>
+                </div>
+              </section>
             </v-expansion-panel-header>
             <v-expansion-panel-content class="pt-4 px-3 description-text"
               >{{ item.description }}
@@ -100,15 +113,80 @@
           </v-expansion-panel>
         </v-expansion-panels>
       </v-card>
+      <v-row>
+        <v-col cols="4" :max-height="200">
+          <v-btn block :height="200" outlined color="grey darken-1">
+            <v-text>Create Sprint</v-text>
+            <v-icon right>
+              add
+            </v-icon>
+          </v-btn>
+        </v-col>
+        <v-col
+          v-for="sprint in sprints"
+          :key="sprint.id"
+          cols="4"
+          :max-height="200"
+        >
+          <v-card
+            :height="200"
+            class="text-center flex-column-center blue-grey darken-1"
+          >
+            <v-card-text class="display-1 grey--text text--lighten-4">{{
+              sprint.name
+            }}</v-card-text>
+            <v-btn
+              text
+              small
+              outlined
+              class="blue-grey grey--text text--lighten-2"
+              >View</v-btn
+            >
+          </v-card>
+        </v-col>
+      </v-row>
     </v-col>
   </v-row>
 </template>
 
 <style lang="scss" scoped>
+.flex-column-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
 .project-image-offset {
   top: -16px;
   position: relative;
   overflow: hidden;
+}
+.backlog-item_row {
+  display: grid;
+  grid-template-columns: 5% auto 5%;
+  grid-template-rows: 1fr;
+  grid-template-areas: "controls title priority";
+}
+.backlog-item_controls {
+  grid-area: controls;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.backlog-item_title {
+  grid-area: title;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-direction: column;
+}
+.backlog-item_priority {
+  grid-area: priority;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 }
 </style>
 
@@ -121,8 +199,20 @@ import feathersClient from "../feathers-client";
 export default {
   name: "Project",
   data: () => ({
+    sprints: [
+      { id: 1, name: "Sprint 1" },
+      { id: 2, name: "Sprint 2" },
+      { id: 3, name: "Sprint 3" },
+      { id: 4, name: "Sprint 4" },
+      { id: 5, name: "Sprint 5" },
+      { id: 6, name: "Sprint 6" },
+      { id: 7, name: "Sprint 7" },
+      { id: 8, name: "Sprint 8" },
+      { id: 9, name: "Sprint 9" }
+    ],
     project: {},
-    heatmap: false
+    heatmap: false,
+    showBacklog: false
   }),
   async created() {
     await this.fetchData();
@@ -276,6 +366,18 @@ export default {
         str = `${dayDifference} days ago`;
       }
       return str;
+    },
+    showBacklogColor() {
+      if (this.showBacklog) {
+        return "grey";
+      }
+      return "primary";
+    },
+    showBacklogText() {
+      if (this.showBacklog) {
+        return "Hide";
+      }
+      return "Show";
     }
   }
 };
