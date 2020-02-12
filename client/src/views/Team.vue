@@ -1,6 +1,8 @@
 <template>
   <v-container fluid class="mt-0">
+    <!-- If data is pending from server -->
     <LoadingData :loader="loadingData" />
+    <!-- Show details of this team if no data is pending -->
     <TeamDetailsCard
       v-if="!loadingData.pendingData"
       :logoSrc="logoSrc"
@@ -8,13 +10,7 @@
       :owned="owned"
       :members="members"
     />
-    <CreateProject
-      :team="team"
-      :user="user"
-      :status="status"
-      :showDialog="createProject"
-      @closeProjectCreation="close()"
-    />
+    <!-- Button to create a new project -->
     <v-btn
       fab
       color="red accent-2 white--text"
@@ -28,6 +24,14 @@
     >
       <v-icon>mdi-plus</v-icon>
     </v-btn>
+    <!-- Dialog box to create a new project -->
+    <CreateProject
+      :team="team"
+      :user="user"
+      :status="status"
+      :showDialog="createProject"
+      @closeProjectCreation="close()"
+    />
   </v-container>
 </template>
 
@@ -41,25 +45,63 @@ import CreateProject from "@/components/dialogs/CreateProject";
 
 export default {
   name: "Team",
-  data: () => ({
-    createProject: false,
-    team: {},
-    user: {},
-    status: [],
-    roles: [],
-    owned: false,
-    loadingData: {
-      pendingData: true,
-      pendingMsg: "Getting Team Data...",
-      failed: false
-    }
-  }),
   components: {
     TeamDetailsCard,
     LoadingData,
     CreateProject
   },
+  data: () => ({
+    createProject: false, // Does user want to create a project or not?
+    team: {
+      /*
+        id: String,
+        profilePicUrl: String,
+        name: String,
+        description: String,
+        createdAt: String,
+        updatedAt: String
+      */
+    },
+    user: {
+      /*
+        id: String,
+        avatar: String,
+        firstname: String,
+        lastname: String,
+        email: String,
+        tagline: String
+      */
+    },
+    status: [
+      /*
+        id: String,
+        status: String
+      */
+    ],
+    roles: [
+      /*
+        id: String,
+        status: String
+      */
+    ],
+    owned: false, // Is the team owned by this user?
+    loadingData: {
+      pendingData: true,
+      pendingMsg: "Getting Team Data...",
+      failed: false
+    } // Loader component
+  }),
+  async created() {
+    // Initial data pull
+    await this.fetchData();
+    // Store current team in vuex
+    store.dispatch({
+      type: "setTeamData",
+      team: this.team
+    });
+  },
   computed: {
+    // Return placeholder if team doesnt have profilePicUrl, or return team logo URL
     logoSrc() {
       if (
         this.team.profilePicUrl === null ||
@@ -72,12 +114,15 @@ export default {
     }
   },
   methods: {
+    // Close project creation dialog
     close() {
       this.createProject = false;
     },
+    // Open project creation dialog
     open() {
       this.createProject = true;
     },
+    // Returns names and emails of members of this team
     async getMemberData(userid) {
       const user = await feathersClient.service("users").find({
         query: {
@@ -90,6 +135,7 @@ export default {
       memberData.email = user.data[0].email;
       return memberData;
     },
+    // Returns IDs and names of statuses in DB
     async getStatus() {
       const raw = await feathersClient.service("project-status").find({
         query: {
@@ -99,36 +145,54 @@ export default {
       const status = raw.data;
       return status;
     },
+    // Returns data of current team using team ID in url
+    async getTeamData() {
+      const rawTeam = await feathersClient.service("teams").find({
+        query: {
+          id: this.$router.history.current.params.id
+        }
+      });
+      return rawTeam.data[0];
+    },
+    // Returns IDs, roles and favourites of members of this team
+    async getMembers(val) {
+      const rawMembers = await feathersClient.service("members").find({
+        query: {
+          $select: ["userid", "roleid", "fav"],
+          teamid: val
+        }
+      });
+      return rawMembers.data;
+    },
+    // Return roles
+    async getRoles() {
+      const rawRoles = await feathersClient.service("roles").find({
+        query: {
+          $select: ["id", "role"]
+        }
+      });
+      return rawRoles.data;
+    },
+    // Initial data fetch
     async fetchData() {
       try {
-        await store.dispatch("login");
+        // This user's info
         const me = store.getters.getUserData;
-        const rawTeam = await feathersClient.service("teams").find({
-          query: {
-            id: this.$router.history.current.params.id
-          }
-        });
-        const team = rawTeam.data[0];
+        // This team's data
+        const team = await this.getTeamData();
         this.loadingData.pendingMsg = `Team "${team.name}" is loading..."`;
-        const rawMembers = await feathersClient.service("members").find({
-          query: {
-            $select: ["userid", "roleid", "fav"],
-            teamid: team.id
-          }
-        });
-        const members = rawMembers.data;
-        const rawRoles = await feathersClient.service("roles").find({
-          query: {
-            $select: ["id", "role"]
-          }
-        });
+        // IDs, Roles and Favs of members of this team
+        const members = await this.getMembers(team.id);
         let ownerId;
-        const roles = rawRoles.data;
+        // IDs and names of roles in DB
+        const roles = await this.getRoles();
+        // Get ID of role 'owner'
         for (let i = 0; i < roles.length; i++) {
           if (roles[i].role === "Owner") {
             ownerId = roles[i].id;
           }
         }
+        // Change role IDs to names and if this user is owner, then set team owned to true
         for (let i = 0; i < members.length; i++) {
           for (let j = 0; j < roles.length; j++) {
             if (members[i].roleid === roles[j].id) {
@@ -142,12 +206,15 @@ export default {
             }
           }
         }
+        // Get names and emails of every member
         for (let i = 0; i < members.length; i++) {
           const memberData = await this.getMemberData(members[i].userid);
           members[i].name = memberData.name;
           members[i].email = memberData.email;
         }
+        // Get statuses in DB
         let status = await this.getStatus();
+        // Temporarily store all fetched data
         this.team = team;
         this.user = me;
         this.members = members;
@@ -159,7 +226,8 @@ export default {
           this.loadingData.pendingMsg = "You aren't logged in";
           this.loadingData.failed = true;
         } else if (err.code === 408) {
-          this.loadingData.pendingMsg = "You aren't logged in";
+          this.loadingData.pendingMsg =
+            "Server timed out. Try refreshing the page";
           this.loadingData.failed = true;
         } else {
           console.log(err);
@@ -169,13 +237,7 @@ export default {
       }
     }
   },
-  async created() {
-    await this.fetchData();
-    store.dispatch({
-      type: "setTeamData",
-      team: this.team
-    });
-  },
+  // Fetch data again if route chanages
   watch: {
     $route: "fetchData"
   }
