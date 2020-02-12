@@ -1,38 +1,22 @@
 <template>
   <v-container fluid>
-    <v-row v-if="pendingData" class="full-height">
-      <v-col cols="12" align="center" class="flex-column">
-        <v-progress-circular
-          :size="100"
-          :width="5"
-          color="primary"
-          indeterminate
-          class="mb-5"
-          v-if="!failed"
-        ></v-progress-circular
-        ><v-progress-circular
-          :size="100"
-          :width="5"
-          color="grey"
-          class="mb-5"
-          v-if="failed"
-        >
-          <v-icon color="grey">close</v-icon></v-progress-circular
-        >
-        <span>{{ pendingMsg }}</span>
-      </v-col>
-    </v-row>
-    <v-row v-if="!pendingData" align="start" class="fill-height">
+    <!-- If data from server is still pending -->
+    <LoadingData :loader="loader" />
+    <!-- Show profile if data is no longer pending -->
+    <v-row v-if="!loader.pendingData" align="start" class="fill-height">
       <v-col cols="4">
         <v-card max-width="370" tile>
           <v-flex class="teal darken-2">
             <v-row align="end" class="fill-height">
               <v-col align-self="start" cols="12" class="flex-row">
+                <!-- Profile img -->
                 <v-avatar color="grey" size="164" tile>
                   <v-img :src="avatarSrc"></v-img>
                 </v-avatar>
                 <v-spacer />
+                <!-- If this user's profile -->
                 <v-flex class="flex-row-reverse" v-if="me">
+                  <!-- Edit Profile -->
                   <v-btn
                     outlined
                     class="teal darken-1 mx-2 teal--text text--darken-4"
@@ -42,6 +26,7 @@
                     Edit
                     <v-icon small right>create</v-icon>
                   </v-btn>
+                  <!-- Update Profile -->
                   <v-btn
                     class="teal lighten-1 mx-2 teal--text text--darken-4"
                     v-if="editing"
@@ -56,6 +41,7 @@
               <v-col class="py-0">
                 <v-list-item color="rgba(0, 0, 0, .4)" dark>
                   <v-list-item-content>
+                    <!-- Name -->
                     <v-list-item-title class="flex-row title">
                       <span v-if="!editing">{{ fullName }}</span>
                       <v-text-field
@@ -70,6 +56,7 @@
                       ></v-text-field>
                     </v-list-item-title>
                     <v-list-item-subtitle class="flex-row">
+                      <!-- Tagline -->
                       <span v-if="!editing">{{ profile.tagline }}</span>
                       <v-text-field
                         v-if="editing"
@@ -77,7 +64,9 @@
                         v-model="profile.tagline"
                       ></v-text-field>
                     </v-list-item-subtitle>
+                    <!-- Friends only -->
                     <v-list-item-subtitle class="friends-info" v-if="friends">
+                      <!-- Email -->
                       <a
                         class="contact-link"
                         v-if="!editing"
@@ -92,6 +81,7 @@
                       ></v-text-field>
                     </v-list-item-subtitle>
                     <v-list-item-subtitle class="friends-info" v-if="friends">
+                      <!-- Phone No. -->
                       <a
                         class="contact-link"
                         v-if="!editing"
@@ -106,6 +96,7 @@
                       ></v-text-field>
                     </v-list-item-subtitle>
                     <v-list-item-subtitle class="friends-info" v-if="friends">
+                      <!-- Country -->
                       <span v-if="!editing">{{ profile.country }}</span>
                       <v-text-field
                         v-if="editing"
@@ -118,8 +109,10 @@
               </v-col>
             </v-row>
           </v-flex>
+          <!-- If not this user's profile -->
           <v-flex v-if="!me" class="grey darken-4">
             <v-col class="flex-row">
+              <!-- Add friend -->
               <v-btn
                 @click="addFriend()"
                 v-if="!friends"
@@ -128,6 +121,7 @@
                 Friend
                 <v-icon right>add</v-icon>
               </v-btn>
+              <!-- Message -->
               <v-btn @click="message()" class="primary">
                 Message
                 <v-icon right>message</v-icon>
@@ -137,6 +131,7 @@
           <v-expansion-panels>
             <v-expansion-panel>
               <v-expansion-panel-header>About</v-expansion-panel-header>
+              <!-- Bio -->
               <v-expansion-panel-content>
                 <span v-if="!editing">{{ profile.bio }}</span>
                 <v-textarea
@@ -148,20 +143,25 @@
               </v-expansion-panel-content>
             </v-expansion-panel>
           </v-expansion-panels>
+          <!-- If not editing -->
           <v-expansion-panels v-if="!editing">
             <v-expansion-panel>
               <v-expansion-panel-header>Friends</v-expansion-panel-header>
+              <!-- If friends data has loaded -->
               <v-expansion-panel-content v-if="friendsLoaded">
                 <div
                   v-for="friend in friendList"
                   :key="friend.friendid"
                   class="flex-row-center"
                 >
+                  <!-- Friend profile img -->
                   <v-avatar v-if="friend.avatar" size="30" class="mr-2">
                     <v-img :src="friend.avatar" />
                   </v-avatar>
+                  <!-- Friend name -->
                   <span v-if="hasFriends">{{ friend.fullname }}</span>
                   <v-spacer />
+                  <!-- Options -->
                   <v-menu bottom left>
                     <template v-slot:activator="{ on }">
                       <v-btn small icon v-on="on">
@@ -180,11 +180,14 @@
                     </v-list>
                   </v-menu>
                 </div>
+                <!-- If user has no friends -->
                 <div v-if="!hasFriends">
                   <em>No friends!</em>
                 </div>
               </v-expansion-panel-content>
+              <!-- If friends data has not loaded -->
               <v-expansion-panel-content v-if="!friendsLoaded">
+                <!-- Loader -->
                 <v-row class="full-height">
                   <v-col cols="12" align="center" class="flex-column">
                     <v-progress-circular
@@ -193,18 +196,18 @@
                       color="primary"
                       indeterminate
                       class="mb-5"
-                      v-if="!failed"
+                      v-if="!loader.failed"
                     ></v-progress-circular
                     ><v-progress-circular
                       :size="100"
                       :width="5"
                       color="grey"
                       class="mb-5"
-                      v-if="failed"
+                      v-if="loader.failed"
                     >
                       <v-icon color="grey">close</v-icon></v-progress-circular
                     >
-                    <span>{{ pendingMsg }}</span>
+                    <span>{{ loader.pendingMsg }}</span>
                   </v-col>
                 </v-row>
               </v-expansion-panel-content>
@@ -264,9 +267,13 @@
 import store from "@/store/index";
 import router from "@/router/index";
 import feathersClient from "../feathers-client";
+import LoadingData from "@/components/loaders/LoadingData";
 
 export default {
   name: "profile",
+  components: {
+    LoadingData
+  },
   data: () => ({
     options: [
       {
@@ -283,13 +290,18 @@ export default {
     profile: {},
     editing: false,
     friends: false,
-    pendingData: true,
+    loader: {
+      pendingData: true,
+      pendingMsg: "Getting user profile...",
+      failed: false
+    },
     friendsLoaded: false,
-    pendingMsg: "Getting user profile...",
-    failed: false,
     hasFriends: false,
     friendList: null
   }),
+  async created() {
+    await this.fetchData();
+  },
   computed: {
     avatarSrc() {
       return store.getters.avatarSrc;
@@ -298,17 +310,11 @@ export default {
       return this.profile.firstname + " " + this.profile.lastname;
     }
   },
-  async created() {
-    await this.fetchData();
-  },
-  watch: {
-    $route: "fetchData"
-  },
   methods: {
     async fetchData() {
-      this.pendingData = true;
-      this.pendingMsg = "Getting user profile...";
-      this.failed = false;
+      this.loader.pendingData = true;
+      this.loader.pendingMsg = "Getting user profile...";
+      this.loader.failed = false;
       this.friendsLoaded = false;
       this.user = store.getters.getUserData;
       const raw = await feathersClient.service("users").find({
@@ -324,7 +330,7 @@ export default {
         this.me = false;
         this.friends = false;
       }
-      this.pendingMsg = `${this.profile.firstname}'s profile is loading...`;
+      this.loader.pendingMsg = `${this.profile.firstname}'s profile is loading...`;
       const raw2 = await feathersClient.service("friends").find({
         query: {
           status: "friends",
@@ -364,7 +370,7 @@ export default {
         this.friendList[i].avatar = friendData.avatar;
       }
       this.friendsLoaded = true;
-      this.pendingData = false;
+      this.loader.pendingData = false;
     },
     async updateProfile() {
       await feathersClient
@@ -402,6 +408,9 @@ export default {
       });
       await feathersClient.service("notification").create(notification);
     }
+  },
+  watch: {
+    $route: "fetchData"
   }
 };
 </script>
