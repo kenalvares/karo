@@ -271,7 +271,23 @@ export default {
   name: "CreateProject",
   props: {
     team: Object,
+    /*
+        id: String,
+        profilePicUrl: String,
+        name: String,
+        description: String,
+        createdAt: String,
+        updatedAt: String
+      */
     user: Object,
+    /*
+        id: String,
+        avatar: String,
+        firstname: String,
+        lastname: String,
+        email: String,
+        tagline: String
+      */
     status: Array,
     showDialog: Boolean
   },

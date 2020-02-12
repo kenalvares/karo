@@ -2,7 +2,9 @@
   <v-container class="grey lighten-5">
     <v-row no-gutters>
       <v-col cols="12">
+        <!-- Create a new Project -->
         <CreateProject :user="user" />
+        <!-- Filter through projects -->
         <v-btn-toggle
           v-model="projectFilter"
           tile
@@ -10,15 +12,19 @@
           group
           mandatory
         >
+          <!-- View All -->
           <v-btn value="all" @click="filterProjects('all')">
             All
           </v-btn>
+          <!-- View Completed -->
           <v-btn value="completed" @click="filterProjects('completed')">
             Completed
           </v-btn>
+          <!-- View Ongoing -->
           <v-btn value="ongoing" @click="filterProjects('ongoing')">
             Ongoing
           </v-btn>
+          <!-- View Onhold -->
           <v-btn value="onhold" @click="filterProjects('onhold')">
             Onhold
           </v-btn>
@@ -32,8 +38,10 @@
         cols="12"
         sm="4"
       >
+        <!-- Single Project -->
         <ProjectCard :project="project" />
       </v-col>
+      <!-- If user doesn't have any projects -->
       <EmptyCard
         :toShow="emptyProjectArray"
         msg="
@@ -54,20 +62,50 @@ import store from "@/store/index.js";
 
 export default {
   name: "projects",
-  data: () => ({
-    projectFilter: "all",
-    filterColor: "purple",
-    user: {},
-    projects: [],
-    roles: [],
-    status: []
-  }),
   components: {
     ProjectCard,
     CreateProject,
     EmptyCard
   },
+  data: () => ({
+    // Selected filter
+    projectFilter: "all",
+    // Filter icon color
+    filterColor: "purple",
+    // This user
+    user: {
+      /*
+        id: String,
+        avatar: String,
+        firstname: String,
+        lastname: String,
+        email: String,
+        tagline: String
+      */
+    },
+    // Array of projects user is working on
+    projects: [
+      /*
+        id: String,
+        title: String,
+        description: String,
+        backgroundUrl: String,
+        status: String,
+        team: String,
+        avatar: String
+      */
+    ],
+    // Array of roles in DB
+    roles: [],
+    // Array of statuses in DB
+    status: []
+  }),
+  async created() {
+    // Initial data fetch
+    await this.fetchData();
+  },
   computed: {
+    // Return array of projects based on selected filters
     selectedProjects() {
       if (this.projectFilter === "fav") {
         return this.projects.filter(function(project) {
@@ -95,6 +133,7 @@ export default {
         return this.projects;
       }
     },
+    // If user has no projects
     emptyProjectArray() {
       if (this.selectedProjects.length < 1) {
         return true;
@@ -102,52 +141,76 @@ export default {
       return false;
     }
   },
-  async created() {
-    await this.fetchData();
-  },
   methods: {
+    // Returns IDs and names of roles in DB
+    async getRoles() {
+      const rawRoles = await feathersClient.service("roles").find({
+        query: {
+          $select: ["id", "role"]
+        }
+      });
+      return [...rawRoles.data];
+    },
+    // Returns IDs of teams and IDs of roles of user in those teams
+    async getTeamsAndRoles(val) {
+      const rawTeams = await feathersClient.service("members").find({
+        query: {
+          userid: val,
+          $select: ["teamid", "roleid"]
+        }
+      });
+      return [...rawTeams.data];
+    },
+    // Returns name and profile picture of teams
+    async getTeamNameAndLogo(val) {
+      let teamInfo = await feathersClient.service("teams").find({
+        query: {
+          id: val,
+          $select: ["name", "profilePicUrl"]
+        }
+      });
+      return teamInfo.data[0];
+    },
+    // Returns info of projects owned by a team
+    async getProjects(val) {
+      let rawProjects = await feathersClient.service("projects").find({
+        query: {
+          teamid: val,
+          $select: ["id", "name", "vision", "status", "background"]
+        }
+      });
+      return rawProjects.data;
+    },
+    // Returns statuses in DB
+    async getStatus() {
+      const rawStatus = await feathersClient.service("project-status").find({
+        query: {
+          $select: ["id", "status"]
+        }
+      });
+      return [...rawStatus.data];
+    },
+    // Initial data fetch
     async fetchData() {
       try {
-        await store.dispatch("login");
+        // This user's data
         const me = store.getters.getUserData;
-        const rawRoles = await feathersClient.service("roles").find({
-          query: {
-            $select: ["id", "role"]
-          }
-        });
-        const roles = [...rawRoles.data];
-        const rawTeams = await feathersClient.service("members").find({
-          query: {
-            userid: me.id,
-            $select: ["teamid", "roleid"]
-          }
-        });
-        const teams = [...rawTeams.data];
+        // IDs and names of roles
+        const roles = await this.getRoles();
+        // IDs of teams user is part of and ID of role of user in that team
+        const teams = await this.getTeamsAndRoles(me.id);
         for (let i = 0; i < teams.length; i++) {
-          let teamInfo = await feathersClient.service("teams").find({
-            query: {
-              id: teams[i].teamid,
-              $select: ["name", "profilePicUrl"]
-            }
-          });
-          teamInfo = [...teamInfo.data];
+          // Get team name and logo
+          const teamInfo = await this.getTeamNameAndLogo(teams[i].teamid);
           teams[i].name = teamInfo.name;
           teams[i].avatar = teamInfo.profilePicUrl;
-          let rawProjects = await feathersClient.service("projects").find({
-            query: {
-              teamid: teams[i].teamid,
-              $select: ["id", "name", "vision", "status", "background"]
-            }
-          });
-          teams[i].projects = rawProjects.data;
+          // Get this team's projects
+          teams[i].projects = await this.getProjects(teams[i].teamid);
         }
-        const rawStatus = await feathersClient.service("project-status").find({
-          query: {
-            $select: ["id", "status"]
-          }
-        });
-        const status = [...rawStatus.data];
+        // Statuses in DB
+        const status = await this.getStatus();
         let projects = [];
+        // Add each project as an object to the projects array
         for (let i = 0; i < teams.length; i++) {
           for (let j = 0; j < teams[i].projects.length; j++) {
             let obj = {};
@@ -165,6 +228,7 @@ export default {
             projects.push(obj);
           }
         }
+        // Store server data tmeporarily
         this.projects = projects;
         this.roles = roles;
         this.user = me;
@@ -172,6 +236,7 @@ export default {
         console.log("Error in Projects.vue", err);
       }
     },
+    // set filter icon color
     filterProjects(type) {
       if (type === "all") {
         this.filterColor = "purple";
