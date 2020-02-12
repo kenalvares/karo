@@ -3,24 +3,29 @@
 <template>
   <v-card max-width="344" class="mx-auto">
     <v-list-item>
+      <!-- Team Logo -->
       <v-list-item-avatar>
         <v-img :src="logoSrc" />
       </v-list-item-avatar>
       <v-list-item-content>
+        <!-- Team Name -->
         <v-list-item-title class="headline">{{ team.name }}</v-list-item-title>
       </v-list-item-content>
     </v-list-item>
-
+    <!-- Team Description -->
     <v-card-text> {{ shortDesc }} </v-card-text>
 
     <v-card-actions>
+      <!-- Go To Team Page -->
       <v-btn text color="indigo accent-4" :to="'team/' + team.id">
         View
       </v-btn>
       <v-spacer />
+      <!-- Favourite a team -->
       <v-btn :color="checkFav" @click="favouriteThisTeam(team.id)" icon>
         <v-icon>star</v-icon>
       </v-btn>
+      <!-- Add Team Member -->
       <v-btn v-if="team.owned" icon>
         <v-icon>person_add</v-icon>
       </v-btn>
@@ -37,10 +42,18 @@ export default {
   name: "TeamCardSmall",
   props: {
     team: Object,
+    /*
+        id: String,
+        avatar: String,
+        name: String,
+        description: String,
+        owned: Boolean,
+        fav: Boolean
+      */
     userid: String
   },
   computed: {
-    // Check of project is fav and return fav icon color
+    // Check if project is fav and return fav icon color
     checkFav() {
       if (this.team.fav === true) {
         return "yellow";
