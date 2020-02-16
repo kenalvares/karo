@@ -8,16 +8,16 @@
     <TopMenu />
 
     <!-- Sizes your content based upon application components -->
-    <v-content>
+    <v-content dark color="#121212">
       <!-- Provides the application with the proper gutter -->
-      <v-container fluid>
+      <v-container dark fluid color="#121212">
         <!-- Contains all views from vue-router -->
-        <router-view />
+        <router-view dark color="#121212" />
       </v-container>
     </v-content>
 
     <!-- App Footer -->
-    <v-footer elevation="2" color="lightgrey" app inset id="vFooter">
+    <v-footer app dark id="vFooter" clipped-left>
       <span>&copy; 2020 - Karo</span>
     </v-footer>
   </v-app>
@@ -43,15 +43,6 @@
 
 #nav {
   padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
 }
 </style>
 
@@ -70,6 +61,9 @@ export default {
   components: {
     SideMenu,
     TopMenu
+  },
+  created() {
+    this.$vuetify.theme.dark = true;
   }
 };
 </script>

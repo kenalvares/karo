@@ -1,6 +1,6 @@
 <template>
   <v-stepper v-model="teamStepper" :vertical="false">
-    <v-stepper-header>
+    <v-stepper-header dark>
       <v-stepper-step :complete="teamStepper > 1" step="1">
         Team Name
       </v-stepper-step>
@@ -14,8 +14,11 @@
         >Members</v-stepper-step
       >
     </v-stepper-header>
-    <v-stepper-items class="red white--text pa-3" v-if="errors">
-      <v-icon left class="white--text">warning</v-icon>
+    <v-stepper-items
+      class="red darken-4 grey--text text--lighten-4 pa-3"
+      v-if="errors"
+    >
+      <v-icon left class="grey--text text--lighten-4">warning</v-icon>
       {{ errors }}
     </v-stepper-items>
     <v-stepper-content step="1">
@@ -29,7 +32,10 @@
         :rules="teamnameMaxChars"
         @keydown.enter="step(2)"
       ></v-text-field>
-      <v-btn color="primary" @click="step(2)">Continue</v-btn>
+      <v-btn @click="step(2)" class="mx-2">Continue</v-btn>
+      <v-btn outlined @click="cancel()" dark color="grey lighten-2" class="mx-2"
+        >Cancel</v-btn
+      >
     </v-stepper-content>
 
     <v-stepper-content step="2">
@@ -43,7 +49,10 @@
         :rules="descriptionMaxChars"
         @keydown.enter="step(3)"
       ></v-textarea>
-      <v-btn color="primary" @click="step(3)">Continue</v-btn>
+      <v-btn @click="step(3)">Continue</v-btn>
+      <v-btn outlined @click="cancel()" dark color="grey lighten-2" class="mx-2"
+        >Cancel</v-btn
+      >
     </v-stepper-content>
 
     <v-stepper-content step="3">
@@ -57,14 +66,7 @@
           ></v-text-field>
         </v-col>
         <v-col cols="1">
-          <v-btn
-            class="ma-1"
-            outlined
-            large
-            fab
-            color="grey"
-            @click="addMember()"
-          >
+          <v-btn outlined medium fab color="grey" @click="addMember()">
             <v-icon>add</v-icon>
           </v-btn>
         </v-col>
@@ -109,15 +111,18 @@
           </v-simple-table>
         </v-col>
       </v-row>
-      <v-btn color="primary" class="ml-4" @click="createTeam()">Continue</v-btn>
+      <v-btn class="ml-4" @click="createTeam()">Continue</v-btn>
+      <v-btn outlined @click="cancel()" dark color="grey lighten-2" class="mx-2"
+        >Cancel</v-btn
+      >
     </v-stepper-content>
   </v-stepper>
 </template>
 
 <script>
 /*eslint-disable no-unused-vars*/
-import feathersClient from "../../feathers-client";
-import store from "../../store/index";
+import feathersClient from "@/feathers-client";
+import store from "@/store/index";
 /*eslint-disable no-console*/
 export default {
   name: "CreateTeamStepper",
@@ -140,22 +145,74 @@ export default {
     allowCreateTeam: true
   }),
   async created() {
-    let me = {
-      id: 1
-    };
-    const user = store.getters.getUserData;
-    me.color = this.randomColor();
-    me.email = user.email;
-    me.role = "Owner";
-    this.members.push(me);
+    this.addMe();
     for (let i = 0; i < this.roles.length; i++) {
       this.roleNames[i] = this.roles[i].role;
     }
   },
   methods: {
+    cancel() {
+      this.teamStepper = 1;
+      this.members = [];
+      this.addMe();
+      this.count = 2;
+      this.email = "";
+      this.teamname = "";
+      this.description = "";
+      this.errors = null;
+      this.$emit("creationCancelled");
+    },
+    async addMember() {
+      this.email = this.email.replace(/ /g, "").toLowerCase();
+      const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+      if (!emailPattern.test(this.email)) {
+        this.errors = "Invalid email";
+      } else {
+        let memberAlreadyInArray = false;
+        for (let i = 0; i < this.members.length; i++) {
+          if (this.email == this.members[i].email) {
+            memberAlreadyInArray = true;
+          }
+        }
+        if (!memberAlreadyInArray) {
+          let memberExists = false;
+          this.errors = `Checking if ${this.email} is a user...`;
+          let memberUserId = await this.getUserId(this.email);
+          if (memberUserId === null || memberUserId === undefined) {
+            this.errors = `${this.email} is not a user`;
+            console.log(memberUserId, this.email);
+            memberExists = false;
+          } else {
+            this.errors = null;
+            memberExists = true;
+          }
+          if (memberExists) {
+            this.members.push({
+              id: this.count,
+              email: this.email,
+              color: this.randomColor()
+            });
+            this.count += 1;
+            this.email = "";
+          }
+        } else {
+          this.errors = `${this.email} has already been added`;
+        }
+      }
+    },
+    addMe() {
+      const user = store.getters.getUserData;
+      let me = {
+        id: 1
+      };
+      me.color = this.randomColor();
+      me.email = user.email;
+      me.role = "";
+      this.members.push(me);
+    },
     randomColor() {
       const color = this.color[Math.floor(Math.random() * this.color.length)];
-      color.concat(" darken-1");
+      color.concat(" darken-2");
       return color;
     },
     removeMember(i) {
@@ -166,6 +223,7 @@ export default {
       let teamInDb = null;
       for (let i = 0; i < this.members.length; i++) {
         if (
+          this.members[i].role === "" ||
           this.members[i].role === null ||
           this.members[i].role === undefined
         ) {
@@ -190,34 +248,22 @@ export default {
           .service("teams")
           .on("created", team => (teamInDb = team));
 
+        await feathersClient.service("teams").create({
+          name: localTeam.name,
+          description: localTeam.description
+        });
         for (let i = 0; i < this.members.length; i++) {
-          this.members[i].userid = await this.getUserId(this.members[i].email);
-          if (
-            this.members[i].userid === null ||
-            this.members[i].userid === undefined
-          ) {
-            this.errors = `${this.members[i].email} is not a user`;
-            this.allowCreateTeam = false;
-          }
-        }
-        if (this.allowCreateTeam) {
-          await feathersClient.service("teams").create({
-            name: localTeam.name,
-            description: localTeam.description
+          delete this.members[i].email;
+          delete this.members[i].id;
+          this.members[i].teamid = teamInDb.id;
+          await feathersClient.service("members").create({
+            teamid: this.members[i].teamid,
+            userid: this.members[i].userid,
+            roleid: this.members[i].roleid,
+            fav: false
           });
-          for (let i = 0; i < this.members.length; i++) {
-            delete this.members[i].email;
-            delete this.members[i].id;
-            this.members[i].teamid = teamInDb.id;
-            await feathersClient.service("members").create({
-              teamid: this.members[i].teamid,
-              userid: this.members[i].userid,
-              roleid: this.members[i].roleid,
-              fav: false
-            });
-          }
-          this.$emit("teamCreated", true);
         }
+        this.$emit("teamCreated", true);
       }
     },
     async getUserId(memberEmail) {
@@ -238,23 +284,6 @@ export default {
         name: this.teamname,
         description: this.description
       };
-    },
-    addMember() {
-      if (
-        this.email === "" ||
-        this.email === null ||
-        this.email === undefined
-      ) {
-        this.errors = "Can't add a blank user";
-      } else {
-        this.members.push({
-          id: this.count,
-          email: this.email,
-          color: this.randomColor()
-        });
-        this.count += 1;
-        this.email = "";
-      }
     },
     myMemberName(i) {
       if (i === 0) {

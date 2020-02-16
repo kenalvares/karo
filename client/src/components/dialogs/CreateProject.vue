@@ -2,14 +2,17 @@
   <v-dialog v-model="show">
     <v-card>
       <v-stepper v-model="step" vertical>
-        <v-stepper-header class="grey darken-3">
+        <v-stepper-header class="grey darken-4">
           <v-card-title left class="grey--text text--lighten-2">
             <v-icon left class="grey--text text--lighten-2">create</v-icon>
             Create Project
           </v-card-title>
         </v-stepper-header>
-        <v-stepper-items class="red white--text pa-3" v-if="errors">
-          <v-icon left class="white--text">warning</v-icon>
+        <v-stepper-items
+          class="red darken-4 grey--text text--lighten-4 pa-3"
+          v-if="errors"
+        >
+          <v-icon left class="grey--text text--lighten-4">warning</v-icon>
           {{ errors }}
         </v-stepper-items>
         <v-stepper-items>
@@ -29,11 +32,13 @@
             >
             </v-text-field>
 
-            <v-btn color="primary" @click="stepTo(2)">
+            <v-btn class="mx-2" @click="stepTo(2)">
               Continue
             </v-btn>
 
-            <v-btn text @click="close()">Cancel</v-btn>
+            <v-btn outlined color="grey lighten-2" class="mx-2" @click="close()"
+              >Cancel</v-btn
+            >
           </v-stepper-content>
 
           <v-stepper-step :complete="step > 2" step="2"
@@ -51,11 +56,13 @@
               @keydown.enter="stepTo(3)"
             ></v-textarea>
 
-            <v-btn color="primary" @click="stepTo(3)">
+            <v-btn class="mx-2" @click="stepTo(3)">
               Continue
             </v-btn>
 
-            <v-btn text @click="close()">Cancel</v-btn>
+            <v-btn outlined color="grey lighten-2" class="mx-2" @click="close()"
+              >Cancel</v-btn
+            >
           </v-stepper-content>
 
           <v-stepper-step step="3" :complete="step > 3"
@@ -101,10 +108,12 @@
                       :hide-details="true"
                       :inset="true"
                       v-model="heatmap"
-                      label="Show Heatmap?"
                       color="red"
                       light
                     />
+                    <p class="fill-height my-0 mx-0 pa-0 flex-column-center">
+                      {{ heatmap ? "Hide" : "Show" }} Heatmap?
+                    </p>
                   </v-toolbar>
                   <v-expansion-panels :accordion="true" :flat="true">
                     <v-expansion-panel
@@ -160,7 +169,7 @@
                             <v-btn
                               @click="removeItem(item.priority - 1)"
                               icon
-                              class="ma-0 pa-0 red--text text--darken-4"
+                              class="ma-0 pa-0 red--text"
                             >
                               <v-icon small class="mx-0 px-0">close</v-icon>
                             </v-btn>
@@ -179,7 +188,7 @@
 
             <v-dialog v-model="confirmDialog" width="500">
               <template v-slot:activator="{ on }">
-                <v-btn color="primary" dark v-on="on">
+                <v-btn class="mx-2" dark v-on="on">
                   Create
                 </v-btn>
               </template>
@@ -241,7 +250,9 @@
               </v-card>
             </v-dialog>
 
-            <v-btn text @click="close()">Cancel</v-btn>
+            <v-btn outlined color="grey lighten-2" class="mx-2" @click="close()"
+              >Cancel</v-btn
+            >
           </v-stepper-content>
         </v-stepper-items>
       </v-stepper>
@@ -292,7 +303,7 @@ export default {
     showDialog: Boolean
   },
   data: () => ({
-    step: 1,
+    step: 3,
     confirmDialog: false,
     heatmap: false,
     creatingProject: {
@@ -353,7 +364,7 @@ export default {
     itemColor(priority) {
       if (this.heatmap) {
         if (this.project.backlog.length < 4) {
-          return "green accent-1";
+          return "green";
         } else {
           let str = "";
           if (priority <= this.project.backlog.length * 0.3) {
@@ -362,15 +373,14 @@ export default {
             priority > this.project.backlog.length * 0.3 &&
             priority < this.project.backlog.length * 0.8
           ) {
-            str = "yellow";
+            str = "yellow darken-2";
           } else {
-            str = "deep-orange";
+            str = "red";
           }
-          str += " accent-1";
           return str;
         }
       } else {
-        return "white";
+        return "grey darken-4";
       }
     },
     addBacklogItem() {

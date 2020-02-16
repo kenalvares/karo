@@ -1,31 +1,30 @@
 <template>
-  <v-container class="grey lighten-5">
+  <v-container>
     <!--
       This row holds the controls to create a new team or filter through existing teams.
       It will only display if client is not waiting for more data from server.
     -->
-    <v-row no-gutters v-if="!loader.pendingData">
+    <v-row dense no-gutters v-if="!loader.pendingData">
       <v-col cols="12">
         <!-- Opens team creation dialog -->
         <CreateTeamDialog :roles="roles" @teamCreated="fetchData" />
         <!-- Button group to filter through teams -->
         <v-btn-toggle
           v-model="teamFilter"
-          tile
-          :color="filterColor"
+          color="primary lighten-1"
           group
           mandatory
         >
           <!-- View all teams -->
-          <v-btn value="all" @click="filterTeams('all')">
+          <v-btn value="all">
             All
           </v-btn>
           <!-- View only owned teams -->
-          <v-btn value="owned" @click="filterTeams('owned')">
+          <v-btn value="owned">
             Owned
           </v-btn>
           <!-- View only favourite teams-->
-          <v-btn value="fav" @click="filterTeams('fav')">
+          <v-btn value="fav">
             Fav
           </v-btn>
         </v-btn-toggle>
@@ -75,7 +74,6 @@ export default {
   },
   data: () => ({
     teamFilter: "all", // Selected filter
-    filterColor: "purple", // Filter icon color
     teams: [
       /*
         id: String,
@@ -278,19 +276,6 @@ export default {
           avatar: teamData[i].profilePicUrl
         });
       }
-    },
-    // Set color of filter icon based on type
-    filterTeams(type) {
-      if (type === "all") {
-        this.filterColor = "purple";
-      } else if (type === "fav") {
-        this.filterColor = "yellow";
-      } else if (type === "owned") {
-        this.filterColor = "success";
-      } else {
-        this.filterColor = "grey";
-      }
-      this.filterColor.concat(" accent-4");
     }
   },
   // Fetch Data again if route changes

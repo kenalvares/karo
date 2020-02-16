@@ -4,7 +4,6 @@
       <v-card class="mx-auto text-center grey darken-4" dark>
         <v-sheet
           class="project-image-offset mx-auto"
-          color="cyan"
           elevation="12"
           max-width="calc(100% - 32px)"
         >
@@ -45,67 +44,85 @@
             :hide-details="true"
             :inset="true"
             v-model="heatmap"
-            label="Show Heatmap?"
             color="red"
             light
-            class="px-2"
+            class="mx-0"
           />
+          <p class="fill-height my-0 mx-0 pa-0 flex-column-center">
+            {{ heatmap ? "Hide" : "Show" }} Heatmap?
+          </p>
           <v-btn
             :dense="true"
             @click="showBacklog = !showBacklog"
-            class="px-2"
+            class="px-2 mx-3"
             outlined
             :color="showBacklogColor"
             >{{ showBacklogText }}</v-btn
           >
         </v-toolbar>
-        <v-expansion-panels v-if="showBacklog" :accordion="true" :flat="true">
+        <v-expansion-panels
+          dark
+          v-if="showBacklog"
+          :accordion="true"
+          :flat="true"
+        >
           <v-expansion-panel
             v-for="item in project.backlog"
             :key="item.priority"
             :class="itemColor(item.priority)"
           >
             <v-expansion-panel-header :ripple="true" class="text-capitalize">
-              <template v-slot:actions>
-                <v-icon>keyboard_arrow_down</v-icon>
-              </template>
-              <section class="backlog-item_row">
-                <div class="backlog-item_controls">
-                  <v-btn
-                    icon
-                    class="ma-0 pa-0"
-                    :disabled="item.priority === 1 ? true : false"
-                    @click="increasePriority(item.priority)"
-                  >
-                    <v-icon small>arrow_drop_up</v-icon>
-                  </v-btn>
+              <v-row>
+                <v-col cols="1" class="my-auto py-auto mx-0 px-0" :width="0">
+                  <v-tooltip bottom>
+                    <template v-slot:activator="{ onInc }">
+                      <v-btn
+                        icon
+                        class="ma-0 pa-0"
+                        :disabled="item.priority === 1 ? true : false"
+                        v-on="onInc"
+                        @click="increasePriority(item.priority)"
+                      >
+                        <v-icon small>arrow_drop_up</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Increase priority</span>
+                  </v-tooltip>
 
                   <small>{{ item.priority }}</small>
 
-                  <v-btn
-                    icon
-                    class="ma-0 pa-0"
-                    :disabled="
-                      item.priority === project.backlog.length ? true : false
-                    "
-                    @click="decreasePriority(item.priority)"
-                  >
-                    <v-icon small>arrow_drop_down</v-icon>
-                  </v-btn>
-                </div>
-                <div class="backlog-item_title">
+                  <v-tooltip bottom>
+                    <template v-slot:activator="{ onDec }">
+                      <v-btn
+                        icon
+                        class="ma-0 pa-0"
+                        :disabled="
+                          item.priority === project.backlog.length
+                            ? true
+                            : false
+                        "
+                        v-on="onDec"
+                        @click="decreasePriority(item.priority)"
+                      >
+                        <v-icon small>arrow_drop_down</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Decrease priority</span>
+                  </v-tooltip>
+                </v-col>
+                <v-col cols="10" class="my-auto py-auto mx-0 px-1">
                   <span class="header-text">{{ item.title }}</span>
-                </div>
-                <div class="backlog-item_priority">
+                </v-col>
+                <v-col cols="1" class="mx-0 px-0" :width="0">
                   <v-btn
                     @click="removeItem(item.priority - 1, item.id)"
                     icon
-                    class="ma-0 pa-0 red--text text--darken-4"
+                    class="ma-0 pa-0 red--text"
                   >
                     <v-icon small class="mx-0 px-0">close</v-icon>
                   </v-btn>
-                </div>
-              </section>
+                </v-col>
+              </v-row>
             </v-expansion-panel-header>
             <v-expansion-panel-content class="pt-4 px-3 description-text"
               >{{ item.description }}
@@ -130,18 +147,10 @@
         >
           <v-card
             :height="200"
-            class="text-center flex-column-center blue-grey darken-1"
+            class="text-center flex-column-center grey darken-3"
           >
-            <v-card-text class="display-1 grey--text text--lighten-4">{{
-              sprint.name
-            }}</v-card-text>
-            <v-btn
-              text
-              small
-              outlined
-              class="blue-grey grey--text text--lighten-2"
-              >View</v-btn
-            >
+            <v-card-text class="display-1">{{ sprint.name }}</v-card-text>
+            <v-btn depressed small dark>View</v-btn>
           </v-card>
         </v-col>
       </v-row>
@@ -160,33 +169,6 @@
   top: -16px;
   position: relative;
   overflow: hidden;
-}
-.backlog-item_row {
-  display: grid;
-  grid-template-columns: 5% auto 5%;
-  grid-template-rows: 1fr;
-  grid-template-areas: "controls title priority";
-}
-.backlog-item_controls {
-  grid-area: controls;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-}
-.backlog-item_title {
-  grid-area: title;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  flex-direction: column;
-}
-.backlog-item_priority {
-  grid-area: priority;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
 }
 </style>
 
@@ -285,7 +267,7 @@ export default {
     itemColor(priority) {
       if (this.heatmap) {
         if (this.project.backlog.length < 4) {
-          return "green accent-1";
+          return "green";
         } else {
           let str = "";
           if (priority <= this.project.backlog.length * 0.3) {
@@ -294,15 +276,14 @@ export default {
             priority > this.project.backlog.length * 0.3 &&
             priority < this.project.backlog.length * 0.8
           ) {
-            str = "yellow";
+            str = "yellow darken-2";
           } else {
-            str = "deep-orange";
+            str = "red";
           }
-          str += " accent-1";
           return str;
         }
       } else {
-        return "white";
+        return "grey darken-4";
       }
     },
     async removeItem(i, id) {
@@ -371,7 +352,7 @@ export default {
       if (this.showBacklog) {
         return "grey";
       }
-      return "primary";
+      return "white";
     },
     showBacklogText() {
       if (this.showBacklog) {

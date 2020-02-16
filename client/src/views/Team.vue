@@ -13,7 +13,7 @@
     <!-- Button to create a new project -->
     <v-btn
       fab
-      color="red accent-2 white--text"
+      color="#101010"
       bottom
       right
       absolute

@@ -1,18 +1,19 @@
 <template>
-  <v-bottom-sheet v-model="createTeamDialog">
+  <v-dialog v-model="createTeamDialog" max-width="1080px">
     <template v-slot:activator="{ on }">
-      <v-btn outlined color="primary" v-on="on">
+      <v-btn class="mx-3" outlined v-on="on">
         <v-icon left>add</v-icon>
         Create Team
       </v-btn>
     </template>
     <v-sheet class="text-center">
-      <v-toolbar dark>
+      <v-toolbar dark color="grey darken-4">
         <h2>Create Team</h2>
         <v-spacer />
         <v-btn
           outlined
           dark
+          color="grey"
           class="my-6"
           @click="createTeamDialog = !createTeamDialog"
         >
@@ -21,10 +22,14 @@
         </v-btn>
       </v-toolbar>
       <div>
-        <CreateTeamStepper :roles="roles" @teamCreated="closeDialog" />
+        <CreateTeamStepper
+          :roles="roles"
+          @teamCreated="closeDialog"
+          @creationCancelled="closeDialog"
+        />
       </div>
     </v-sheet>
-  </v-bottom-sheet>
+  </v-dialog>
 </template>
 
 <script>
@@ -47,6 +52,7 @@ export default {
         this.createTeamDialog = !this.createTeamDialog;
         this.$emit("teamCreated", true);
       }
+      this.createTeamDialog = !this.createTeamDialog;
     }
   }
 };

@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer v-model="drawer" app color="grey lighten-5">
+  <v-navigation-drawer v-model="drawer" app dark clipped>
     <v-list dense>
       <v-list-item
         v-for="link in links"

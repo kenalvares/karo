@@ -26,7 +26,7 @@
     </v-card-text>
     <v-card-actions>
       <!-- View Project -->
-      <v-btn text color="indigo accent-4" :to="'project/' + project.id">
+      <v-btn text color="grey lighten-5" :to="'project/' + project.id">
         View
       </v-btn>
     </v-card-actions>

@@ -1,7 +1,7 @@
 <!-- Team Card Small-->
 <!-- Displays short team data in card -->
 <template>
-  <v-card max-width="344" class="mx-auto">
+  <v-card max-width="344" class="mx-auto py-1 px-0">
     <v-list-item>
       <!-- Team Logo -->
       <v-list-item-avatar>
@@ -17,7 +17,7 @@
 
     <v-card-actions>
       <!-- Go To Team Page -->
-      <v-btn text color="indigo accent-4" :to="'team/' + team.id">
+      <v-btn text color="grey lighten-5" :to="'team/' + team.id">
         View
       </v-btn>
       <v-spacer />
@@ -26,7 +26,7 @@
         <v-icon>star</v-icon>
       </v-btn>
       <!-- Add Team Member -->
-      <v-btn v-if="team.owned" icon>
+      <v-btn v-if="team.owned" icon color="grey">
         <v-icon>person_add</v-icon>
       </v-btn>
     </v-card-actions>

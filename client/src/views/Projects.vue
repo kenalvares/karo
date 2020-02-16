@@ -1,5 +1,5 @@
 <template>
-  <v-container class="grey lighten-5">
+  <v-container>
     <v-row no-gutters>
       <v-col cols="12">
         <!-- Create a new Project -->
@@ -7,25 +7,24 @@
         <!-- Filter through projects -->
         <v-btn-toggle
           v-model="projectFilter"
-          tile
-          :color="filterColor"
+          color="primary lighten-1"
           group
           mandatory
         >
           <!-- View All -->
-          <v-btn value="all" @click="filterProjects('all')">
+          <v-btn value="all">
             All
           </v-btn>
           <!-- View Completed -->
-          <v-btn value="completed" @click="filterProjects('completed')">
+          <v-btn value="completed">
             Completed
           </v-btn>
           <!-- View Ongoing -->
-          <v-btn value="ongoing" @click="filterProjects('ongoing')">
+          <v-btn value="ongoing">
             Ongoing
           </v-btn>
           <!-- View Onhold -->
-          <v-btn value="onhold" @click="filterProjects('onhold')">
+          <v-btn value="onhold">
             Onhold
           </v-btn>
         </v-btn-toggle>
@@ -70,8 +69,6 @@ export default {
   data: () => ({
     // Selected filter
     projectFilter: "all",
-    // Filter icon color
-    filterColor: "purple",
     // This user
     user: {
       /*
@@ -235,21 +232,6 @@ export default {
       } catch (err) {
         console.log("Error in Projects.vue", err);
       }
-    },
-    // set filter icon color
-    filterProjects(type) {
-      if (type === "all") {
-        this.filterColor = "purple";
-      } else if (type === "completed") {
-        this.filterColor = "success";
-      } else if (type === "ongoing") {
-        this.filterColor = "red";
-      } else if (type === "onhold") {
-        this.filterColor = "indigo";
-      } else {
-        this.filterColor = "grey";
-      }
-      this.filterColor.concat(" accent-4");
     }
   }
 };

@@ -1,7 +1,7 @@
 <!-- Team Details Card-->
 <!-- Displays detailed team data in a card -->
 <template>
-  <v-card elevation="2">
+  <v-card elevation="2" class="px-1 py-2">
     <v-row>
       <v-col cols="2">
         <v-flex class="pa-5">
@@ -23,7 +23,7 @@
 
     <v-card-actions>
       <!-- Edit Team -->
-      <v-btn v-if="owned" text color="indigo accent-4">
+      <v-btn v-if="owned" text outlined color="grey lighten-2">
         Edit
       </v-btn>
 
@@ -79,8 +79,8 @@
 }
 
 .member-name {
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.2rem;
+  font-weight: 400;
 }
 
 .member-email {
@@ -90,11 +90,11 @@
   letter-spacing: 0.1rem;
   padding: 0.1rem 0.3rem;
   margin: 0.1rem 0.5rem;
-  background-color: #e6e6e6;
+  background-color: #303030;
 }
 
 .border-list-item {
-  border: 1px solid #ccc;
+  border: 1px solid #303030;
   border-left-width: 0;
   border-right-width: 0;
   border-bottom-width: 0;
