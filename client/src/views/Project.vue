@@ -31,7 +31,7 @@
       <v-card class="mx-auto text-center grey"> </v-card>
     </v-col>
     <v-col cols="9">
-      <v-card>
+      <v-card flat>
         <v-toolbar flat :height="60">
           <v-icon left>list</v-icon>
           <strong>Product Backlog</strong>
@@ -60,12 +60,7 @@
             >{{ showBacklogText }}</v-btn
           >
         </v-toolbar>
-        <v-expansion-panels
-          dark
-          v-if="showBacklog"
-          :accordion="true"
-          :flat="true"
-        >
+        <v-expansion-panels dark v-if="showBacklog" accordion flat>
           <v-expansion-panel
             v-for="item in project.backlog"
             :key="item.priority"
@@ -73,47 +68,32 @@
           >
             <v-expansion-panel-header :ripple="true" class="text-capitalize">
               <v-row>
-                <v-col cols="1" class="my-auto py-auto mx-0 px-0" :width="0">
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ onInc }">
-                      <v-btn
-                        icon
-                        class="ma-0 pa-0"
-                        :disabled="item.priority === 1 ? true : false"
-                        v-on="onInc"
-                        @click="increasePriority(item.priority)"
-                      >
-                        <v-icon small>arrow_drop_up</v-icon>
-                      </v-btn>
-                    </template>
-                    <span>Increase priority</span>
-                  </v-tooltip>
+                <v-col cols="1" class="ma-0 pa-0 flex-column-center" :width="0">
+                  <v-btn
+                    icon
+                    class="ma-0 pa-0"
+                    :disabled="item.priority === 1 ? true : false"
+                    @click="increasePriority(item.priority)"
+                  >
+                    <v-icon small>arrow_drop_up</v-icon>
+                  </v-btn>
 
                   <small>{{ item.priority }}</small>
-
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ onDec }">
-                      <v-btn
-                        icon
-                        class="ma-0 pa-0"
-                        :disabled="
-                          item.priority === project.backlog.length
-                            ? true
-                            : false
-                        "
-                        v-on="onDec"
-                        @click="decreasePriority(item.priority)"
-                      >
-                        <v-icon small>arrow_drop_down</v-icon>
-                      </v-btn>
-                    </template>
-                    <span>Decrease priority</span>
-                  </v-tooltip>
+                  <v-btn
+                    icon
+                    class="ma-0 pa-0"
+                    :disabled="
+                      item.priority === project.backlog.length ? true : false
+                    "
+                    @click="decreasePriority(item.priority)"
+                  >
+                    <v-icon small>arrow_drop_down</v-icon>
+                  </v-btn>
                 </v-col>
                 <v-col cols="10" class="my-auto py-auto mx-0 px-1">
                   <span class="header-text">{{ item.title }}</span>
                 </v-col>
-                <v-col cols="1" class="mx-0 px-0" :width="0">
+                <v-col cols="1" class="my-auto py-auto mx-0 px-0" :width="0">
                   <v-btn
                     @click="removeItem(item.priority - 1, item.id)"
                     icon
@@ -132,12 +112,19 @@
       </v-card>
       <v-row>
         <v-col cols="4" :max-height="200">
-          <v-btn block :height="200" outlined color="grey darken-1">
+          <v-btn
+            block
+            :height="200"
+            outlined
+            color="grey darken-1"
+            @click="confirmDialog = !confirmDialog"
+          >
             <v-text>Create Sprint</v-text>
             <v-icon right>
               add
             </v-icon>
           </v-btn>
+          <ConfirmDialog :showProp="confirmDialog" />
         </v-col>
         <v-col
           v-for="sprint in sprints"
@@ -177,9 +164,13 @@
 import store from "@/store/index";
 import router from "@/router/index";
 import feathersClient from "../feathers-client";
+import ConfirmDialog from "@/components/dialogs/ConfirmDialog";
 /*eslint-disable no-console*/
 export default {
   name: "Project",
+  components: {
+    ConfirmDialog
+  },
   data: () => ({
     sprints: [
       { id: 1, name: "Sprint 1" },
@@ -194,7 +185,8 @@ export default {
     ],
     project: {},
     heatmap: false,
-    showBacklog: false
+    showBacklog: false,
+    confirmDialog: false
   }),
   async created() {
     await this.fetchData();

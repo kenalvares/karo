@@ -115,13 +115,16 @@
                       {{ heatmap ? "Hide" : "Show" }} Heatmap?
                     </p>
                   </v-toolbar>
-                  <v-expansion-panels :accordion="true" :flat="true">
+                  <v-expansion-panels dark accordion flat>
                     <v-expansion-panel
                       v-for="item in project.backlog"
                       :key="item.priority"
                       :class="itemColor(item.priority)"
                     >
-                      <v-expansion-panel-header class="text-capitalize">
+                      <v-expansion-panel-header
+                        :ripple="true"
+                        class="text-capitalize"
+                      >
                         <v-row>
                           <v-col
                             cols="1"
