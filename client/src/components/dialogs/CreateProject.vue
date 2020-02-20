@@ -306,7 +306,7 @@ export default {
     showDialog: Boolean
   },
   data: () => ({
-    step: 3,
+    step: 1,
     confirmDialog: false,
     heatmap: false,
     creatingProject: {

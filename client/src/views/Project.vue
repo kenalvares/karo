@@ -119,12 +119,12 @@
             color="grey darken-1"
             @click="confirmDialog = !confirmDialog"
           >
-            <v-text>Create Sprint</v-text>
+            Create Sprint
             <v-icon right>
               add
             </v-icon>
           </v-btn>
-          <ConfirmDialog :showProp="confirmDialog" />
+          <ConfirmDialog :showProp="confirmDialog" @close="close()" />
         </v-col>
         <v-col
           v-for="sprint in sprints"
@@ -183,7 +183,9 @@ export default {
       { id: 8, name: "Sprint 8" },
       { id: 9, name: "Sprint 9" }
     ],
-    project: {},
+    project: {
+      backlog: []
+    },
     heatmap: false,
     showBacklog: false,
     confirmDialog: false
@@ -313,6 +315,9 @@ export default {
         this.project.backlog[i - 1] = this.project.backlog[i];
         this.project.backlog[i] = temp;
       }
+    },
+    close() {
+      this.confirmDialog = false;
     }
   },
   computed: {

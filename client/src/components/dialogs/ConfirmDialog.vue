@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model="computedShow">
     <v-card>
-      <v-card-title class="headline grey lighten-4" primary-title>
+      <v-card-title class="headline" primary-title>
         Confirm
       </v-card-title>
       <v-card-title> </v-card-title>
