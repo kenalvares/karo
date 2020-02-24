@@ -172,17 +172,7 @@ export default {
     ConfirmDialog
   },
   data: () => ({
-    sprints: [
-      { id: 1, name: "Sprint 1" },
-      { id: 2, name: "Sprint 2" },
-      { id: 3, name: "Sprint 3" },
-      { id: 4, name: "Sprint 4" },
-      { id: 5, name: "Sprint 5" },
-      { id: 6, name: "Sprint 6" },
-      { id: 7, name: "Sprint 7" },
-      { id: 8, name: "Sprint 8" },
-      { id: 9, name: "Sprint 9" }
-    ],
+    sprints: [{ id: 1, name: "Sample Sprint 1" }],
     project: {
       backlog: []
     },

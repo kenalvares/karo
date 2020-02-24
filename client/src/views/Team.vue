@@ -5,20 +5,18 @@
     <!-- Show details of this team if no data is pending -->
     <TeamDetailsCard
       v-if="!loadingData.pendingData"
-      :logoSrc="logoSrc"
-      :team="team"
-      :owned="owned"
-      :members="members"
+      :initlogoSrc="logoSrc"
+      :initteam="team"
+      :initowned="owned"
+      :initmembers="members"
     />
     <!-- Button to create a new project -->
     <v-btn
       fab
-      color="#101010"
       bottom
       right
       absolute
-      large
-      class="my-4"
+      class="my-4 red"
       v-if="owned"
       @click="open()"
     >
@@ -167,7 +165,7 @@ export default {
     async getMembers(val) {
       const rawMembers = await feathersClient.service("members").find({
         query: {
-          $select: ["userid", "roleid", "fav"],
+          $select: ["id", "userid", "roleid", "fav"],
           teamid: val
         }
       });

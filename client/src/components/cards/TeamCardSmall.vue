@@ -1,37 +1,66 @@
 <!-- Team Card Small-->
 <!-- Displays short team data in card -->
 <template>
-  <v-card max-width="344" class="mx-auto py-1 px-0">
-    <v-list-item>
-      <!-- Team Logo -->
-      <v-list-item-avatar>
-        <v-img :src="logoSrc" />
-      </v-list-item-avatar>
-      <v-list-item-content>
-        <!-- Team Name -->
-        <v-list-item-title class="headline">{{ team.name }}</v-list-item-title>
-      </v-list-item-content>
-    </v-list-item>
-    <!-- Team Description -->
-    <v-card-text> {{ shortDesc }} </v-card-text>
+  <v-hover v-slot:default="{ hover }">
+    <v-card
+      :elevation="hover ? 16 : 2"
+      max-width="344"
+      class="mx-auto py-1 px-0"
+      style="overflow:hidden;"
+      ><v-expand-transition>
+        <div
+          v-if="hover"
+          class="d-flex transition-ease-in-out primary v-card--reveal display-3 white--text"
+        >
+          {{ team.name.toUpperCase() }}
+        </div>
+      </v-expand-transition>
 
-    <v-card-actions>
-      <!-- Go To Team Page -->
-      <v-btn text color="grey lighten-5" :to="'team/' + team.id">
-        View
-      </v-btn>
-      <v-spacer />
-      <!-- Favourite a team -->
-      <v-btn :color="checkFav" @click="favouriteThisTeam(team.id)" icon>
-        <v-icon>star</v-icon>
-      </v-btn>
-      <!-- Add Team Member -->
-      <v-btn v-if="team.owned" icon color="grey">
-        <v-icon>person_add</v-icon>
-      </v-btn>
-    </v-card-actions>
-  </v-card>
+      <v-list-item>
+        <!-- Team Logo -->
+        <v-list-item-avatar>
+          <v-img :src="logoSrc" />
+        </v-list-item-avatar>
+        <v-list-item-content>
+          <!-- Team Name -->
+          <v-list-item-title class="headline">{{
+            team.name
+          }}</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+      <!-- Team Description -->
+      <v-card-text> {{ shortDesc }} </v-card-text>
+
+      <v-card-actions>
+        <!-- Go To Team Page -->
+        <v-btn text :to="'team/' + team.id">
+          View
+        </v-btn>
+        <v-spacer />
+        <!-- Favourite a team -->
+        <v-btn :color="checkFav" @click="favouriteThisTeam(team.id)" icon>
+          <v-icon>star</v-icon>
+        </v-btn>
+        <!-- Add Team Member -->
+        <v-btn v-if="team.owned" icon color="grey">
+          <v-icon>person_add</v-icon>
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-hover>
 </template>
+<style lang="scss" scoped>
+.v-card--reveal {
+  align-items: flex-end;
+  bottom: 0;
+  justify-content: flex-end;
+  opacity: 0.1;
+  position: absolute;
+  height: 120%;
+  width: 100%;
+  font-weight: 900;
+}
+</style>
 
 <script>
 /*eslint-disable no-console*/

@@ -1,13 +1,17 @@
 <template>
   <v-dialog v-model="show">
+    <v-toolbar>
+      <v-icon left>create</v-icon>
+
+      <h2>Create Project</h2>
+      <v-spacer />
+      <v-btn outlined dark class="my-6" @click="show = !show">
+        Close
+        <v-icon right>close</v-icon>
+      </v-btn>
+    </v-toolbar>
     <v-card>
       <v-stepper v-model="step" vertical>
-        <v-stepper-header class="grey darken-4">
-          <v-card-title left class="grey--text text--lighten-2">
-            <v-icon left class="grey--text text--lighten-2">create</v-icon>
-            Create Project
-          </v-card-title>
-        </v-stepper-header>
         <v-stepper-items
           class="red darken-4 grey--text text--lighten-4 pa-3"
           v-if="errors"
@@ -32,13 +36,11 @@
             >
             </v-text-field>
 
-            <v-btn class="mx-2" @click="stepTo(2)">
+            <v-btn class="mx-2" color="primary" @click="stepTo(2)">
               Continue
             </v-btn>
 
-            <v-btn outlined color="grey lighten-2" class="mx-2" @click="close()"
-              >Cancel</v-btn
-            >
+            <v-btn outlined class="mx-2" @click="close()">Cancel</v-btn>
           </v-stepper-content>
 
           <v-stepper-step :complete="step > 2" step="2"
@@ -56,13 +58,11 @@
               @keydown.enter="stepTo(3)"
             ></v-textarea>
 
-            <v-btn class="mx-2" @click="stepTo(3)">
+            <v-btn class="mx-2" color="primary" @click="stepTo(3)">
               Continue
             </v-btn>
 
-            <v-btn outlined color="grey lighten-2" class="mx-2" @click="close()"
-              >Cancel</v-btn
-            >
+            <v-btn outlined class="mx-2" @click="close()">Cancel</v-btn>
           </v-stepper-content>
 
           <v-stepper-step step="3" :complete="step > 3"
@@ -191,7 +191,7 @@
 
             <v-dialog v-model="confirmDialog" width="500">
               <template v-slot:activator="{ on }">
-                <v-btn class="mx-2" dark v-on="on">
+                <v-btn class="mx-2" color="primary" v-on="on">
                   Create
                 </v-btn>
               </template>
@@ -199,7 +199,7 @@
               <v-card>
                 <v-card-title
                   v-if="!creatingProject.pending"
-                  class="headline grey lighten-4"
+                  class="headline grey darken-1"
                   primary-title
                 >
                   One Last Check
@@ -207,7 +207,7 @@
 
                 <v-card-title
                   v-if="creatingProject.pending"
-                  class="headline grey lighten-4"
+                  class="headline grey darken-1"
                   primary-title
                 >
                   One Second
@@ -238,10 +238,12 @@
                 <v-card-actions>
                   <v-spacer></v-spacer>
 
-                  <v-btn color="primary" @click="createProject()">
+                  <v-btn color="primary" class="mx-2" @click="createProject()">
                     Start Project
                   </v-btn>
                   <v-btn
+                    outlined
+                    class="mx-2"
                     @click="
                       stepTo(1);
                       confirmDialog = !confirmDialog;
@@ -253,9 +255,7 @@
               </v-card>
             </v-dialog>
 
-            <v-btn outlined color="grey lighten-2" class="mx-2" @click="close()"
-              >Cancel</v-btn
-            >
+            <v-btn outlined class="mx-2" @click="close()">Cancel</v-btn>
           </v-stepper-content>
         </v-stepper-items>
       </v-stepper>

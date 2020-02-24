@@ -3,7 +3,7 @@
     <v-app-bar-nav-icon @click="changeSideDrawer()" />
     <v-toolbar-title>Karo</v-toolbar-title>
     <v-spacer />
-    <v-btn depressed large dark to="/login" v-if="!loggedIn">
+    <v-btn depressed large color="success" to="/login" v-if="!loggedIn">
       <v-icon left small>lock_open</v-icon>Login
     </v-btn>
     <UserIconMenu v-if="loggedIn" />

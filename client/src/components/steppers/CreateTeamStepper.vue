@@ -1,6 +1,6 @@
 <template>
   <v-stepper v-model="teamStepper" :vertical="false">
-    <v-stepper-header dark>
+    <v-stepper-header>
       <v-stepper-step :complete="teamStepper > 1" step="1">
         Team Name
       </v-stepper-step>
@@ -32,10 +32,8 @@
         :rules="teamnameMaxChars"
         @keydown.enter="step(2)"
       ></v-text-field>
-      <v-btn @click="step(2)" class="mx-2">Continue</v-btn>
-      <v-btn outlined @click="cancel()" dark color="grey lighten-2" class="mx-2"
-        >Cancel</v-btn
-      >
+      <v-btn color="primary" @click="step(2)" class="mx-2">Continue</v-btn>
+      <v-btn outlined @click="cancel()" class="mx-2">Cancel</v-btn>
     </v-stepper-content>
 
     <v-stepper-content step="2">
@@ -49,10 +47,8 @@
         :rules="descriptionMaxChars"
         @keydown.enter="step(3)"
       ></v-textarea>
-      <v-btn @click="step(3)">Continue</v-btn>
-      <v-btn outlined @click="cancel()" dark color="grey lighten-2" class="mx-2"
-        >Cancel</v-btn
-      >
+      <v-btn color="primary" @click="step(3)" class="mx-2">Continue</v-btn>
+      <v-btn outlined @click="cancel()" class="mx-2">Cancel</v-btn>
     </v-stepper-content>
 
     <v-stepper-content step="3">
@@ -111,10 +107,8 @@
           </v-simple-table>
         </v-col>
       </v-row>
-      <v-btn class="ml-4" @click="createTeam()">Continue</v-btn>
-      <v-btn outlined @click="cancel()" dark color="grey lighten-2" class="mx-2"
-        >Cancel</v-btn
-      >
+      <v-btn class="ml-4" color="primary" @click="createTeam()">Continue</v-btn>
+      <v-btn outlined @click="cancel()" class="mx-2">Cancel</v-btn>
     </v-stepper-content>
   </v-stepper>
 </template>
@@ -180,7 +174,6 @@ export default {
           let memberUserId = await this.getUserId(this.email);
           if (memberUserId === null || memberUserId === undefined) {
             this.errors = `${this.email} is not a user`;
-            console.log(memberUserId, this.email);
             memberExists = false;
           } else {
             this.errors = null;
@@ -243,7 +236,6 @@ export default {
             }
           }
         }
-        console.log(teamInDb);
         await feathersClient
           .service("teams")
           .on("created", team => (teamInDb = team));

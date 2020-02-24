@@ -66,12 +66,12 @@ export default new Vuex.Store({
       userMenu: [
         {
           icon: "mdi-home",
-          text: "Profile",
+          text: "My Profile",
           route: "/profile/"
         },
         {
           icon: "mdi-view-dashboard",
-          text: "Account",
+          text: "Account Preferences",
           route: "/account/"
         }
       ]
