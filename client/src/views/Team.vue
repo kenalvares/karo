@@ -1,27 +1,5 @@
 <template>
-  <v-container fluid class="mt-0">
-    <!-- If data is pending from server -->
-    <LoadingData :loader="loadingData" />
-    <!-- Show details of this team if no data is pending -->
-    <TeamDetailsCard
-      v-if="!loadingData.pendingData"
-      :initlogoSrc="logoSrc"
-      :initteam="team"
-      :initowned="owned"
-      :initmembers="members"
-    />
-    <!-- Button to create a new project -->
-    <v-btn
-      fab
-      bottom
-      right
-      absolute
-      class="my-4 red"
-      v-if="owned"
-      @click="open()"
-    >
-      <v-icon>mdi-plus</v-icon>
-    </v-btn>
+  <v-container>
     <!-- Dialog box to create a new project -->
     <CreateProject
       :team="team"
@@ -30,8 +8,93 @@
       :showDialog="createProject"
       @closeProjectCreation="close()"
     />
+    <v-row class="mt-0">
+      <!-- If data is pending from server -->
+      <LoadingData :loader="loadingData" />
+      <!-- Show details of this team if no data is pending -->
+      <TeamDetailsCard
+        v-if="!loadingData.pendingData"
+        :initlogoSrc="logoSrc"
+        :initteam="team"
+        :initowned="owned"
+        :initmembers="members"
+        :initprojects="projects"
+        @teamUpdated="fetchData(true)"
+      />
+      <!-- Button to create a new project -->
+      <v-btn
+        fab
+        bottom
+        right
+        fixed
+        class="my-4 red"
+        v-if="owned"
+        @click="open()"
+      >
+        <v-icon>mdi-plus</v-icon>
+      </v-btn>
+    </v-row>
+    <v-row v-if="!loadingData.pendingData">
+      <v-col cols="12">
+        <!-- Create a new Project -->
+        <CreateProject :user="user" />
+        <!-- Filter through projects -->
+        <v-btn-toggle
+          v-model="projectFilter"
+          color="primary lighten-1"
+          group
+          class="filters"
+          mandatory
+        >
+          <!-- View All -->
+          <v-btn value="all">
+            All
+          </v-btn>
+          <!-- View Completed -->
+          <v-btn value="completed">
+            Completed
+          </v-btn>
+          <!-- View Ongoing -->
+          <v-btn value="ongoing">
+            Ongoing
+          </v-btn>
+          <!-- View Onhold -->
+          <v-btn value="onhold">
+            Onhold
+          </v-btn>
+        </v-btn-toggle>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col
+        v-for="project in selectedProjects"
+        :key="project.title"
+        cols="12"
+        sm="6"
+        md="4"
+      >
+        <!-- Single Project -->
+        <ProjectCard :project="project" />
+      </v-col>
+      <!-- If user doesn't have any projects -->
+      <EmptyCard
+        :toShow="emptyProjectArray"
+        msg="
+          It looks like there's nothing here right now. Hit the big red button on the bottom right of the screen to start a new project."
+      />
+    </v-row>
   </v-container>
 </template>
+
+<style lang="scss" scoped>
+.filters {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+</style>
 
 <script>
 /*eslint-disable no-console*/
@@ -39,17 +102,22 @@ import store from "../store/index";
 import feathersClient from "../feathers-client";
 import TeamDetailsCard from "@/components/cards/TeamDetailsCard";
 import LoadingData from "@/components/loaders/LoadingData";
+import ProjectCard from "@/components/cards/ProjectCard";
 import CreateProject from "@/components/dialogs/CreateProject";
+import EmptyCard from "@/components/cards/EmptyCard";
 
 export default {
   name: "Team",
   components: {
     TeamDetailsCard,
     LoadingData,
-    CreateProject
+    ProjectCard,
+    CreateProject,
+    EmptyCard
   },
   data: () => ({
     createProject: false, // Does user want to create a project or not?
+    projectFilter: "all",
     team: {
       /*
         id: String,
@@ -91,6 +159,18 @@ export default {
         status: String
       */
     ],
+    // Array of projects user is working on
+    projects: [
+      /*
+        id: String,
+        title: String,
+        description: String,
+        backgroundUrl: String,
+        status: String,
+        team: String,
+        avatar: String
+      */
+    ],
     owned: false, // Is the team owned by this user?
     loadingData: {
       pendingData: true,
@@ -99,6 +179,7 @@ export default {
     } // Loader component
   }),
   async created() {
+    store.commit("setPageTitle", "Karo");
     // Initial data pull
     await this.fetchData();
     // Store current team in vuex
@@ -118,11 +199,47 @@ export default {
         return store.getters.teamLogoSrc;
       }
       return this.team.profilePicUrl;
+    },
+    // Return array of projects based on selected filters
+    selectedProjects() {
+      if (this.projectFilter === "fav") {
+        return this.projects.filter(function(project) {
+          return project.fav;
+        });
+      } else if (this.projectFilter === "completed") {
+        return this.projects.filter(function(project) {
+          if (project.status === "completed") {
+            return true;
+          }
+        });
+      } else if (this.projectFilter === "ongoing") {
+        return this.projects.filter(function(project) {
+          if (project.status === "ongoing") {
+            return true;
+          }
+        });
+      } else if (this.projectFilter === "onhold") {
+        return this.projects.filter(function(project) {
+          if (project.status === "onhold") {
+            return true;
+          }
+        });
+      } else {
+        return this.projects;
+      }
+    },
+    // If user has no projects
+    emptyProjectArray() {
+      if (this.selectedProjects.length < 1) {
+        return true;
+      }
+      return false;
     }
   },
   methods: {
     // Close project creation dialog
-    close() {
+    async close() {
+      await this.fetchData();
       this.createProject = false;
     },
     // Open project creation dialog
@@ -180,6 +297,16 @@ export default {
       });
       return rawRoles.data;
     },
+    // Returns info of projects owned by a team
+    async getProjects() {
+      let rawProjects = await feathersClient.service("projects").find({
+        query: {
+          teamid: this.team.id,
+          $select: ["id", "name", "vision", "status", "background"]
+        }
+      });
+      return rawProjects.data;
+    },
     // Initial data fetch
     async fetchData() {
       try {
@@ -187,6 +314,7 @@ export default {
         const me = store.getters.getUserData;
         // This team's data
         const team = await this.getTeamData();
+        this.loadingData.pendingData = true;
         this.loadingData.pendingMsg = `Team "${team.name}" is loading..."`;
         // IDs, Roles and Favs of members of this team
         const members = await this.getMembers(team.id);
@@ -223,6 +351,8 @@ export default {
         let status = await this.getStatus();
         // Temporarily store all fetched data
         this.team = team;
+
+        await this.projectFunctions(me, roles, status);
         this.user = me;
         this.members = members;
         this.roles = roles;
@@ -241,6 +371,33 @@ export default {
           this.loadingData.pendingMsg = "Try refreshing the page";
           this.loadingData.failed = true;
         }
+      }
+    },
+    async projectFunctions(me, roles, status) {
+      try {
+        const rawProjects = await this.getProjects();
+        // Statuses in DB
+        let projects = [];
+        // Add each project as an object to the projects array
+        for (let j = 0; j < rawProjects.length; j++) {
+          let obj = {};
+          obj.id = rawProjects[j].id;
+          obj.title = rawProjects[j].name;
+          obj.description = rawProjects[j].vision;
+          obj.backgroundUrl = rawProjects[j].background;
+          for (let k = 0; k < status.length; k++) {
+            if (status[k].id === rawProjects[j].status) {
+              obj.status = status[k].status;
+            }
+          }
+          projects.push(obj);
+        }
+        // Store server data tmeporarily
+        this.projects = projects;
+        this.roles = roles;
+        this.user = me;
+      } catch (err) {
+        console.log("Error in Getting Projects - Team.vue", err);
       }
     }
   },

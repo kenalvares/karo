@@ -34,7 +34,7 @@ module.exports = function(app) {
         allowNull: true
       },
       finishedAt: {
-        type: DataTypes.STRING,
+        type: DataTypes.DATE,
         allowNull: true,
         required: false
       }

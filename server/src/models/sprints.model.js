@@ -15,11 +15,26 @@ module.exports = function(app) {
       },
       backlog: {
         type: DataTypes.JSON,
-        allowNull: true,
-        required: false
+        allowNull: false,
+        required: true
       },
       projectid: {
         type: DataTypes.STRING,
+        allowNull: false,
+        required: true
+      },
+      startDate: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        required: true
+      },
+      endDate: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        required: true
+      },
+      status: {
+        type: DataTypes.INTEGER,
         allowNull: false,
         required: true
       }

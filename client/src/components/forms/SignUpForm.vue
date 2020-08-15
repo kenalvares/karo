@@ -1,5 +1,5 @@
 <template>
-  <v-row justify="center">
+  <v-row style="width:100%!important;" justify="center" align="center">
     <v-col cols="12" xl="4" lg="6" md="4">
       <v-form
         ref="form"
@@ -59,7 +59,7 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer />
-            <v-btn @click.stop="goBack(1)" type="button">Back</v-btn>
+            <v-btn @click.stop="goBack(1)" text>Back</v-btn>
             <v-btn color="primary" type="submit">Submit</v-btn>
           </v-card-actions>
         </v-card>

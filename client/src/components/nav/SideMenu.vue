@@ -1,5 +1,10 @@
 <template>
-  <v-navigation-drawer v-model="drawer" app dark clipped>
+  <v-navigation-drawer v-model="drawer" app>
+    <v-toolbar class="grey darken-4" flat dense>
+      <v-btn small text tile class=" my-1" @click="back()">
+        <v-icon x-small>arrow_back_ios</v-icon>Back
+      </v-btn>
+    </v-toolbar>
     <v-list dense>
       <v-list-item
         v-for="link in links"
@@ -19,7 +24,8 @@
 </template>
 
 <script>
-import store from "../../store/index";
+import store from "@/store/index";
+import router from "@/router/index";
 /*eslint-disable no-console*/
 
 export default {
@@ -39,11 +45,21 @@ export default {
       set: function() {
         this.sideDrawer = store.getters.getSideDrawer;
       }
+    },
+    dark() {
+      const theme = store.getters.currentTheme;
+      if (theme === "dark") {
+        return true;
+      }
+      return false;
     }
   },
   methods: {
     refreshLinks() {
       this.links;
+    },
+    back() {
+      router.go(-1);
     }
   },
   watch: {

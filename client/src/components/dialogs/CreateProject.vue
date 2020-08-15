@@ -12,11 +12,8 @@
     </v-toolbar>
     <v-card>
       <v-stepper v-model="step" vertical>
-        <v-stepper-items
-          class="red darken-4 grey--text text--lighten-4 pa-3"
-          v-if="errors"
-        >
-          <v-icon left class="grey--text text--lighten-4">warning</v-icon>
+        <v-stepper-items class="red darken-4 pa-3" v-if="errors">
+          <v-icon left>warning</v-icon>
           {{ errors }}
         </v-stepper-items>
         <v-stepper-items>
@@ -387,13 +384,27 @@ export default {
       }
     },
     addBacklogItem() {
-      let item = {};
-      item.priority = this.project.backlog.length + 1;
-      item.title = this.backlogItemTitle;
-      item.description = this.backlogItemBody;
-      this.project.backlog.push(item);
-      this.backlogItemTitle = "";
-      this.backlogItemBody = "";
+      if (
+        this.backlogItemTitle === "" ||
+        this.backlogItemTitle === null ||
+        this.backlogItemTitle === undefined
+      ) {
+        this.errors = "Backlog item needs a title";
+      } else if (
+        this.backlogItemBody === "" ||
+        this.backlogItemBody === null ||
+        this.backlogItemBody === undefined
+      ) {
+        this.errors = "Backlog item needs a description";
+      } else {
+        let item = {};
+        item.priority = this.project.backlog.length + 1;
+        item.title = this.backlogItemTitle;
+        item.description = this.backlogItemBody;
+        this.project.backlog.push(item);
+        this.backlogItemTitle = "";
+        this.backlogItemBody = "";
+      }
     },
     increasePriority(i) {
       if (i <= 1) {

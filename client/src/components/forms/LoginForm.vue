@@ -1,15 +1,20 @@
 <!-- Login Form-->
 <!-- Displays short team data in card -->
 <template>
-  <v-row justify="center">
-    <v-col cols="12" xl="4" lg="6" md="4">
+  <v-row
+    style="width:100%!important;"
+    justify="center"
+    align="center"
+    class="mb-0 pb-0"
+  >
+    <v-col cols="12" xl="4" lg="6" md="4" class="mb-0 pb-0">
       <v-form
         ref="form"
-        class="form"
+        class="form mb-0 pb-0"
         v-model="valid"
         @submit.prevent="loginUser"
       >
-        <v-card>
+        <v-card class="mb-0 pb-0">
           <v-toolbar flat color="grey" dark>
             <v-icon left>lock_open</v-icon>
             <v-toolbar-title>Login</v-toolbar-title>
@@ -33,7 +38,7 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer />
-            <v-btn @click.stop="goBack(1)" type="button">Back</v-btn>
+            <v-btn @click.stop="goBack(1)" text>Back</v-btn>
             <v-btn color="primary" type="submit">Submit</v-btn>
           </v-card-actions>
         </v-card>
@@ -84,7 +89,11 @@ export default {
         });
       } catch (err) {
         store.dispatch("logout");
-        this.errors = err.message;
+        if (err.code === 408) {
+          this.errors = "Timed out. Refresh and try again";
+        } else {
+          this.errors = err.message;
+        }
       }
     }
   }

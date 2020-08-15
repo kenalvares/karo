@@ -1,39 +1,48 @@
 <!-- Project Card -->
 <!-- Displays project data in a card -->
 <template>
-  <v-card max-width="344" class="mx-auto">
-    <v-list-item>
-      <!-- Team Logo -->
-      <v-list-item-avatar v-if="hasTeamAvatar">
-        <v-img :src="teamAvatar"></v-img>
-      </v-list-item-avatar>
-      <v-list-item-content>
-        <!-- Project Name -->
-        <v-list-item-title class="headline">
-          {{ project.title }}
-        </v-list-item-title>
-        <!-- Team Name -->
-        <v-list-item-subtitle>{{ project.team }}</v-list-item-subtitle>
-      </v-list-item-content>
-      <!-- Project Status -->
-      <v-icon right :color="iconColor">{{ projectStatus }}</v-icon>
-    </v-list-item>
-    <!-- Project background -->
-    <v-img v-if="hasBackground" :src="background" height="194"></v-img>
-    <!-- Project Description -->
-    <v-card-text>
-      {{ project.description }}
-    </v-card-text>
-    <v-card-actions>
-      <!-- View Project -->
-      <v-btn text color="grey lighten-5" :to="'project/' + project.id">
-        View
-      </v-btn>
-    </v-card-actions>
-  </v-card>
+  <article>
+    <v-hover v-slot:default="{ hover }">
+      <v-card :elevation="hover ? 16 : 2" class="mx-auto py-1 px-0">
+        <v-list-item>
+          <!-- Team Logo -->
+          <v-list-item-avatar v-if="hasTeamAvatar">
+            <v-img :src="teamAvatar"></v-img>
+          </v-list-item-avatar>
+          <v-list-item-content>
+            <!-- Project Name -->
+            <v-list-item-title class="headline">
+              {{ project.title }}
+            </v-list-item-title>
+            <!-- Team Name -->
+            <v-list-item-subtitle>{{ project.team }}</v-list-item-subtitle>
+          </v-list-item-content>
+          <!-- Project Status -->
+          <v-icon
+            right
+            :color="hover ? (dark ? 'white' : 'black') : iconColor"
+            >{{ projectStatus }}</v-icon
+          >
+        </v-list-item>
+        <!-- Project background -->
+        <v-img v-if="hasBackground" :src="background" height="194"></v-img>
+        <!-- Project Description -->
+        <v-card-text>
+          {{ project.description }}
+        </v-card-text>
+        <v-card-actions>
+          <!-- View Project -->
+          <v-btn text :to="'/project/' + project.id">
+            View
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-hover>
+  </article>
 </template>
 
 <script>
+import store from "@/store/index";
 export default {
   name: "ProjectCard",
   props: {
@@ -109,6 +118,13 @@ export default {
         return "";
       }
       return this.project.background;
+    },
+    dark() {
+      const theme = store.getters.currentTheme;
+      if (theme === "dark") {
+        return true;
+      }
+      return false;
     }
   },
   methods: {

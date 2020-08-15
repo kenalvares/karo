@@ -8,6 +8,8 @@ const projects = require('./projects/projects.service.js');
 const projectStatus = require('./project_status/project_status.service.js');
 const backlogItems = require('./backlog_items/backlog_items.service.js');
 const sprints = require('./sprints/sprints.service.js');
+const tasks = require('./tasks/tasks.service.js');
+const channels = require('./channels/channels.service.js');
 // eslint-disable-next-line no-unused-vars
 module.exports = function(app) {
   app.configure(users);
@@ -20,4 +22,6 @@ module.exports = function(app) {
   app.configure(projectStatus);
   app.configure(backlogItems);
   app.configure(sprints);
+  app.configure(tasks);
+  app.configure(channels);
 };

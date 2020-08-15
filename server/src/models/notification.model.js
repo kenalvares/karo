@@ -23,6 +23,14 @@ module.exports = function(app) {
       read: {
         type: DataTypes.BOOLEAN,
         allowNull: false
+      },
+      type: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      data: {
+        type: DataTypes.JSONB,
+        allowNull: true
       }
     },
     {

@@ -1,7 +1,7 @@
 <template>
   <v-menu top left offset-y>
     <template v-slot:activator="{ on }">
-      <v-btn icon v-on="on">
+      <v-btn icon v-on="on" class="my-0">
         <v-avatar>
           <v-img :src="avatarSrc" />
         </v-avatar>
@@ -21,7 +21,7 @@
           </v-list-item-content>
 
           <v-list-item-action>
-            <v-btn class="red--text" icon @click="func()">
+            <v-btn class="red--text" icon @click="breakTime()">
               <v-icon>snooze</v-icon>
             </v-btn>
           </v-list-item-action>
@@ -40,9 +40,11 @@
         </v-list-item>
         <v-list-item>
           <v-list-item-action>
-            <v-switch v-model="darkMode" color="success"></v-switch>
+            <v-switch v-model="theme" color="success"></v-switch>
           </v-list-item-action>
-          <v-list-item-title>Dark Mode</v-list-item-title>
+          <v-list-item-title
+            >Turn {{ darkMode ? "off" : "on" }} Dark Mode</v-list-item-title
+          >
         </v-list-item>
       </v-list>
       <v-card-actions>
@@ -71,6 +73,20 @@ export default {
     let timerID = setInterval(this.updateTime, 1000);
   },
   computed: {
+    theme: {
+      get: function() {
+        return this.darkMode;
+      },
+      set: function() {
+        if (this.darkMode) {
+          store.commit("setTheme", "light");
+        } else {
+          store.commit("setTheme", "dark");
+        }
+        this.$emit("themeSet");
+        this.darkMode = !this.darkMode;
+      }
+    },
     items() {
       const userMenu = store.getters.getUserMenu;
       return userMenu;
@@ -89,7 +105,7 @@ export default {
       let hours = d.getHours();
       let minutes = d.getMinutes();
       let timeOfDay = "am";
-      if (hours >= 12) {
+      if (hours > 12) {
         hours -= 12;
         timeOfDay = "pm";
       }
@@ -98,6 +114,9 @@ export default {
         minutes = zero.concat(minutes);
       }
       this.clock = `${hours}:${minutes} ${timeOfDay}`;
+    },
+    breakTime() {
+      store.commit("changeBreak");
     }
   }
 };

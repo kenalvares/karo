@@ -13,6 +13,7 @@
           v-model="teamFilter"
           color="primary lighten-1"
           group
+          class="filters"
           mandatory
         >
           <!-- View all teams -->
@@ -36,7 +37,13 @@
     -->
     <v-row v-if="!loader.pendingData">
       <!-- Display a single team from list of teams -->
-      <v-col v-for="team in selectedTeams" :key="team.id" cols="12" sm="4">
+      <v-col
+        v-for="team in selectedTeams"
+        :key="team.id"
+        cols="12"
+        sm="6"
+        md="4"
+      >
         <TeamCardSmall :team="team" :userid="userid" />
       </v-col>
       <!-- If user has no teams display notice -->
@@ -55,10 +62,20 @@
   </v-container>
 </template>
 
+<style lang="scss" scoped>
+.filters {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+</style>
+
 <script>
 /*eslint-disable no-console*/
 import TeamCardSmall from "@/components/cards/TeamCardSmall";
-import CreateTeamDialog from "@/components/sheets/CreateTeamDialog";
+import CreateTeamDialog from "@/components/dialogs/CreateTeamDialog";
 import LoadingData from "@/components/loaders/LoadingData";
 import EmptyCard from "@/components/cards/EmptyCard";
 import feathersClient from "../feathers-client";
@@ -98,6 +115,7 @@ export default {
     } // Loader object
   }),
   async created() {
+    store.commit("setPageTitle", "Teams");
     // Fetch all data needed for this page
     await this.fetchData();
   },
@@ -246,7 +264,8 @@ export default {
     async findMemberInfo(val) {
       const rawData = await feathersClient.service("members").find({
         query: {
-          userid: val
+          userid: val,
+          $sort: { updatedAt: -1 }
         }
       });
       return [...rawData.data];
@@ -257,7 +276,8 @@ export default {
         query: {
           id: {
             $in: arr
-          }
+          },
+          $sort: { updatedAt: -1 }
         }
       });
       return teamArr;

@@ -8,27 +8,14 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     sideDrawer: false,
+    theme: "dark",
+    break: false,
     menus: {
       loggedOutMenu: [
         {
           icon: "mdi-home",
           text: "Home",
           route: "/"
-        },
-        {
-          icon: "supervisor_account",
-          text: "About",
-          route: "/about"
-        },
-        {
-          icon: "menu_book",
-          text: "Docs",
-          route: "/docs"
-        },
-        {
-          icon: "report_problem",
-          text: "Support",
-          route: "/support"
         }
       ],
       loggedInMainMenu: [
@@ -51,16 +38,6 @@ export default new Vuex.Store({
           icon: "mdi-message",
           text: "Chats",
           route: "/chats"
-        },
-        {
-          icon: "menu_book",
-          text: "Docs",
-          route: "/docs"
-        },
-        {
-          icon: "report_problem",
-          text: "Support",
-          route: "/support"
         }
       ],
       userMenu: [
@@ -68,19 +45,15 @@ export default new Vuex.Store({
           icon: "mdi-home",
           text: "My Profile",
           route: "/profile/"
-        },
-        {
-          icon: "mdi-view-dashboard",
-          text: "Account Preferences",
-          route: "/account/"
         }
       ]
     },
-    links: null,
+    // links: null,
     loginNotice: false,
     loggedIn: false,
     user: {},
-    currentTeam: {}
+    currentTeam: {},
+    pageTitle: "Karo"
   },
   getters: {
     getMainMenu(state) {
@@ -89,6 +62,9 @@ export default new Vuex.Store({
       } else {
         return state.menus.loggedOutMenu;
       }
+    },
+    onBreak(state) {
+      return state.break;
     },
     getSideDrawer(state) {
       return state.sideDrawer;
@@ -125,11 +101,20 @@ export default new Vuex.Store({
     },
     teamLogoSrc() {
       return require("@/assets/team-placeholder.jpg");
+    },
+    currentTheme(state) {
+      return state.theme;
+    },
+    getPageTitle(state) {
+      return state.pageTitle;
     }
   },
   mutations: {
     changeSideDrawer(state) {
       state.sideDrawer = !state.sideDrawer;
+    },
+    hideSideDrawer(state) {
+      state.sideDrawer = false;
     },
     showLoginNotice(state) {
       state.loginNotice = true;
@@ -146,6 +131,15 @@ export default new Vuex.Store({
     },
     setCurrentTeam(state, raw) {
       state.currentTeam = { ...raw.team };
+    },
+    setTheme(state, theme) {
+      state.theme = theme;
+    },
+    changeBreak(state) {
+      state.break = !state.break;
+    },
+    setPageTitle(state, str) {
+      state.pageTitle = str;
     }
   },
   actions: {
@@ -162,11 +156,19 @@ export default new Vuex.Store({
         return await feathersClient.reAuthenticate().then(rawData => {
           context.state.user = rawData.user;
           context.commit("userLoggedIn");
-          context.commit("showLoginNotice");
           return rawData;
         });
       } catch (err) {
-        return err;
+        let customErr = {};
+        if (err.code === 401) {
+          customErr.msg = "Try logging in again!";
+        } else if (err.code === 408) {
+          customErr.msg = "Authentication failed, try again!";
+        } else {
+          return err;
+        }
+        customErr.code = err.code;
+        return customErr;
       }
     }
   }

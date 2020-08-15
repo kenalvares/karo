@@ -1,3 +1,6 @@
 module.exports = {
-  transpileDependencies: ["feathers-vuex"]
+  transpileDependencies: ["feathers-vuex"],
+  lintOnSave: false
 };
+
+// Vue.config.silent = true;

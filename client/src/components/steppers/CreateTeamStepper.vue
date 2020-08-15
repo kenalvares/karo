@@ -183,6 +183,7 @@ export default {
             this.members.push({
               id: this.count,
               email: this.email,
+              userid: memberUserId,
               color: this.randomColor()
             });
             this.count += 1;
@@ -201,6 +202,7 @@ export default {
       me.color = this.randomColor();
       me.email = user.email;
       me.role = "";
+      me.userid = user.id;
       this.members.push(me);
     },
     randomColor() {
@@ -245,8 +247,6 @@ export default {
           description: localTeam.description
         });
         for (let i = 0; i < this.members.length; i++) {
-          delete this.members[i].email;
-          delete this.members[i].id;
           this.members[i].teamid = teamInDb.id;
           await feathersClient.service("members").create({
             teamid: this.members[i].teamid,
@@ -292,7 +292,7 @@ export default {
         }
       } else if (n === 4) {
         if (this.description === "" || this.description === null) {
-          this.errors = "Please describe your project";
+          this.errors = "Please describe your team ";
           nextStep = false;
         }
       }

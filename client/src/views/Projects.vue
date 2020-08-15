@@ -35,7 +35,8 @@
         v-for="project in selectedProjects"
         :key="project.title"
         cols="12"
-        sm="4"
+        sm="6"
+        md="4"
       >
         <!-- Single Project -->
         <ProjectCard :project="project" />
@@ -98,6 +99,7 @@ export default {
     status: []
   }),
   async created() {
+    store.commit("setPageTitle", "Projects");
     // Initial data fetch
     await this.fetchData();
   },
@@ -189,6 +191,8 @@ export default {
     },
     // Initial data fetch
     async fetchData() {
+      this.projects = [];
+      this.roles = [];
       try {
         // This user's data
         const me = store.getters.getUserData;

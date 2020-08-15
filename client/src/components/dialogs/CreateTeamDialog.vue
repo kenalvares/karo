@@ -1,23 +1,16 @@
 <template>
-  <v-dialog v-model="createTeamDialog" max-width="1080px">
+  <v-dialog v-model="dialog" max-width="1080px">
     <template v-slot:activator="{ on }">
-      <v-btn class="mx-3" outlined v-on="on">
-        <v-icon left>add</v-icon>
-        Create Team
+      <v-btn fab fixed bottom right class="mx-3 red" v-on="on">
+        <v-icon>add</v-icon>
       </v-btn>
     </template>
     <v-sheet class="text-center">
       <v-toolbar>
         <h2>Create Team</h2>
         <v-spacer />
-        <v-btn
-          outlined
-          dark
-          class="my-6"
-          @click="createTeamDialog = !createTeamDialog"
-        >
-          Close
-          <v-icon right>close</v-icon>
+        <v-btn icon class="my-6" @click="dialog = !dialog">
+          <v-icon>close</v-icon>
         </v-btn>
       </v-toolbar>
       <div>
@@ -40,7 +33,7 @@ export default {
     roles: Array
   },
   data: () => ({
-    createTeamDialog: false
+    dialog: false
   }),
   components: {
     CreateTeamStepper
@@ -48,10 +41,11 @@ export default {
   methods: {
     closeDialog(teamCreated) {
       if (teamCreated) {
-        this.createTeamDialog = !this.createTeamDialog;
+        this.dialog = !this.dialog;
         this.$emit("teamCreated", true);
+      } else {
+        this.dialog = !this.dialog;
       }
-      this.createTeamDialog = !this.createTeamDialog;
     }
   }
 };

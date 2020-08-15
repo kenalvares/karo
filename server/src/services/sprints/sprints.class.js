@@ -1,5 +1,3 @@
-const { Service } = require('feathers-sequelize');
+const { Service } = require("feathers-sequelize");
 
-exports.Sprints = class Sprints extends Service {
-  
-};
+exports.Sprints = class Sprints extends Service {};

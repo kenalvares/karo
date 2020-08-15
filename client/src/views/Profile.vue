@@ -5,14 +5,27 @@
     <!-- Show profile if data is no longer pending -->
     <v-row v-if="!loader.pendingData" align="start" class="fill-height">
       <v-col cols="4">
+        <!-- Profile Card -->
         <v-card max-width="370" tile>
           <v-flex class="teal darken-2">
             <v-row align="end" class="fill-height">
               <v-col align-self="start" cols="12" class="flex-row">
                 <!-- Profile img -->
-                <v-avatar color="grey" size="164" tile>
+                <v-avatar color="grey" size="164" style="overflow:hidden">
                   <v-img :src="avatarSrc"></v-img>
+                  <CloudinaryUploader
+                    v-if="editing"
+                    cloudName="karo"
+                    uploadPreset="karo_unsigned"
+                    :sources="['local', 'url']"
+                    :showAdvancedOptions="false"
+                    :cropping="true"
+                    :multiple="false"
+                    defaultSource="local"
+                    @completed="uploaded"
+                  />
                 </v-avatar>
+
                 <v-spacer />
                 <!-- If this user's profile -->
                 <v-flex class="flex-row-reverse" v-if="me">
@@ -117,9 +130,11 @@
                 @click="addFriend()"
                 v-if="!friends"
                 class="secondary mr-3"
+                :loading="addingFriend"
+                :disabled="requestPending"
               >
-                Friend
-                <v-icon right>add</v-icon>
+                {{ requestPending ? "Pending" : "Friend" }}
+                <v-icon v-if="!requestPending" right>add</v-icon>
               </v-btn>
               <!-- Message -->
               <v-btn @click="message()" class="primary">
@@ -197,16 +212,16 @@
                       indeterminate
                       class="mb-5"
                       v-if="!loader.failed"
-                    ></v-progress-circular
-                    ><v-progress-circular
+                    ></v-progress-circular>
+                    <v-progress-circular
                       :size="100"
                       :width="5"
                       color="grey"
                       class="mb-5"
                       v-if="loader.failed"
                     >
-                      <v-icon color="grey">close</v-icon></v-progress-circular
-                    >
+                      <v-icon color="grey">close</v-icon>
+                    </v-progress-circular>
                     <span>{{ loader.pendingMsg }}</span>
                   </v-col>
                 </v-row>
@@ -216,7 +231,25 @@
         </v-card>
       </v-col>
       <v-col cols="8">
-        Projects
+        <v-toolbar>Projects</v-toolbar>
+        <v-row>
+          <!-- Display a single team from list of teams -->
+          <v-col
+            v-for="project in selectedProjects"
+            :key="project.title"
+            cols="12"
+            sm="6"
+            md="4"
+          >
+            <!-- Single Project -->
+            <ProjectCard :project="project" />
+          </v-col>
+          <!-- If user has no teams display notice -->
+          <EmptyCard
+            :toShow="emptyProjectArray"
+            :msg="`${profile.firstname} doesnt have any projects yet!`"
+          />
+        </v-row>
       </v-col>
     </v-row>
   </v-container>
@@ -266,13 +299,19 @@
 // @ is an alias to /src
 import store from "@/store/index";
 import router from "@/router/index";
+import EmptyCard from "@/components/cards/EmptyCard";
+import ProjectCard from "@/components/cards/ProjectCard";
 import feathersClient from "../feathers-client";
 import LoadingData from "@/components/loaders/LoadingData";
+import CloudinaryUploader from "@/components/uploaders/CloudinaryUploader";
 
 export default {
   name: "profile",
   components: {
-    LoadingData
+    LoadingData,
+    CloudinaryUploader,
+    EmptyCard,
+    ProjectCard
   },
   data: () => ({
     options: [
@@ -295,27 +334,149 @@ export default {
       pendingMsg: "Getting user profile...",
       failed: false
     },
+    requestPending: false,
+    addingFriend: false,
     friendsLoaded: false,
     hasFriends: false,
-    friendList: null
+    friendList: null,
+    // Array of projects user is working on
+    projects: [
+      /*
+        id: String,
+        title: String,
+        description: String,
+        backgroundUrl: String,
+        status: String,
+        team: String,
+        avatar: String
+      */
+    ],
+    // Array of roles in DB
+    roles: [],
+    // Array of statuses in DB
+    status: []
   }),
   async created() {
+    store.commit("setPageTitle", "Profile");
     await this.fetchData();
   },
   computed: {
+    // Return array of projects based on selected filters
+    selectedProjects() {
+      if (this.projectFilter === "fav") {
+        return this.projects.filter(function(project) {
+          return project.fav;
+        });
+      } else if (this.projectFilter === "completed") {
+        return this.projects.filter(function(project) {
+          if (project.status === "completed") {
+            return true;
+          }
+        });
+      } else if (this.projectFilter === "ongoing") {
+        return this.projects.filter(function(project) {
+          if (project.status === "ongoing") {
+            return true;
+          }
+        });
+      } else if (this.projectFilter === "onhold") {
+        return this.projects.filter(function(project) {
+          if (project.status === "onhold") {
+            return true;
+          }
+        });
+      } else {
+        return this.projects;
+      }
+    },
+    // If user has no projects
+    emptyProjectArray() {
+      if (this.selectedProjects.length < 1) {
+        return true;
+      }
+      return false;
+    },
     avatarSrc() {
-      return store.getters.avatarSrc;
+      if (
+        this.profile.avatar === null ||
+        this.profile.avatar === undefined ||
+        this.profile.avatar === ""
+      ) {
+        return require("@/assets/user-placeholder.jpg");
+      } else {
+        return this.profile.avatar;
+      }
     },
     fullName() {
       return this.profile.firstname + " " + this.profile.lastname;
     }
   },
   methods: {
+    // Returns IDs and names of roles in DB
+    async getRoles() {
+      const rawRoles = await feathersClient.service("roles").find({
+        query: {
+          $select: ["id", "role"]
+        }
+      });
+      return [...rawRoles.data];
+    },
+    // Returns IDs of teams and IDs of roles of user in those teams
+    async getTeamsAndRoles(val) {
+      const rawTeams = await feathersClient.service("members").find({
+        query: {
+          userid: val,
+          $select: ["teamid", "roleid"]
+        }
+      });
+      return [...rawTeams.data];
+    },
+    // Returns name and profile picture of teams
+    async getTeamNameAndLogo(val) {
+      let teamInfo = await feathersClient.service("teams").find({
+        query: {
+          id: val,
+          $select: ["name", "profilePicUrl"]
+        }
+      });
+      return teamInfo.data[0];
+    },
+    // Returns info of projects owned by a team
+    async getProjects(val) {
+      let rawProjects = await feathersClient.service("projects").find({
+        query: {
+          teamid: val,
+          $select: ["id", "name", "vision", "status", "background"]
+        }
+      });
+      return rawProjects.data;
+    },
+    // Returns statuses in DB
+    async getStatus() {
+      const rawStatus = await feathersClient.service("project-status").find({
+        query: {
+          $select: ["id", "status"]
+        }
+      });
+      return [...rawStatus.data];
+    },
+    message() {
+      router.push("/chats");
+    },
+    uploaded(val) {
+      this.profile.avatar = val.url;
+      console.log(val);
+    },
     async fetchData() {
       this.loader.pendingData = true;
       this.loader.pendingMsg = "Getting user profile...";
       this.loader.failed = false;
       this.friendsLoaded = false;
+      try {
+        await store.dispatch("login");
+      } catch (err) {
+        console.log(err);
+      }
       this.user = store.getters.getUserData;
       const raw = await feathersClient.service("users").find({
         query: {
@@ -333,8 +494,16 @@ export default {
       this.loader.pendingMsg = `${this.profile.firstname}'s profile is loading...`;
       const raw2 = await feathersClient.service("friends").find({
         query: {
-          status: "friends",
-          $or: [{ userid_1: this.profile.id }, { userid_2: this.profile.id }]
+          $or: [
+            {
+              userid_1: this.profile.id,
+              status: "friends"
+            },
+            {
+              userid_2: this.profile.id,
+              status: "friends"
+            }
+          ]
         }
       });
       this.friendList = raw2.data;
@@ -371,6 +540,53 @@ export default {
       }
       this.friendsLoaded = true;
       this.loader.pendingData = false;
+
+      await this.checkRequest();
+
+      this.projects = [];
+      this.roles = [];
+      try {
+        // This user's data
+        const me = this.profile;
+        // IDs and names of roles
+        const roles = await this.getRoles();
+        // IDs of teams user is part of and ID of role of user in that team
+        const teams = await this.getTeamsAndRoles(me.id);
+        for (let i = 0; i < teams.length; i++) {
+          // Get team name and logo
+          const teamInfo = await this.getTeamNameAndLogo(teams[i].teamid);
+          teams[i].name = teamInfo.name;
+          teams[i].avatar = teamInfo.profilePicUrl;
+          // Get this team's projects
+          teams[i].projects = await this.getProjects(teams[i].teamid);
+        }
+        // Statuses in DB
+        const status = await this.getStatus();
+        let projects = [];
+        // Add each project as an object to the projects array
+        for (let i = 0; i < teams.length; i++) {
+          for (let j = 0; j < teams[i].projects.length; j++) {
+            let obj = {};
+            obj.id = teams[i].projects[j].id;
+            obj.title = teams[i].projects[j].name;
+            obj.team = teams[i].name;
+            obj.description = teams[i].projects[j].vision;
+            obj.backgroundUrl = teams[i].projects[j].background;
+            obj.avatar = teams[i].avatar;
+            for (let k = 0; k < status.length; k++) {
+              if (status[k].id === teams[i].projects[j].status) {
+                obj.status = status[k].status;
+              }
+            }
+            projects.push(obj);
+          }
+        }
+        // Store server data tmeporarily
+        this.projects = projects;
+        this.roles = roles;
+      } catch (err) {
+        console.log("Error in Projects.vue", err);
+      }
     },
     async updateProfile() {
       await feathersClient
@@ -382,9 +598,13 @@ export default {
       router.push(link + id);
     },
     async addFriend() {
+      this.addingFriend = true;
       const me = this.user;
       const you = this.profile;
-      let userid_1, userid_2, status;
+      let data = {},
+        userid_1,
+        userid_2,
+        status;
       if (me.id < you.id) {
         userid_1 = me.id;
         userid_2 = you.id;
@@ -394,19 +614,48 @@ export default {
         userid_2 = me.id;
         status = "pending_second_first";
       }
+      data.userid_1 = userid_1;
+      data.userid_2 = userid_2;
       const body = `Hello ${you.firstname}, you have a pending friend request from ${me.firstname} ${me.lastname}!`;
       const notification = {
         userid: you.id,
         title: "Notification",
         body: body,
-        read: "false"
+        read: "false",
+        type: "request",
+        data: data
       };
-      await feathersClient.service("friends").create({
+      const rawFriend = await feathersClient.service("friends").create({
         userid_1: userid_1,
         userid_2: userid_2,
         status: status
       });
+      if (rawFriend.id) {
+        this.addingFriend = false;
+        await this.fetchData();
+      }
       await feathersClient.service("notification").create(notification);
+    },
+    async checkRequest() {
+      const rawThisFriend = await feathersClient.service("friends").find({
+        query: {
+          userid_1: {
+            $in: [this.user.id, this.profile.id]
+          },
+          userid_2: {
+            $in: [this.user.id, this.profile.id]
+          },
+          $select: ["status", "id"]
+        }
+      });
+      if (rawThisFriend.data.length > 0) {
+        if (
+          rawThisFriend.data[0].status === "pending_first_second" ||
+          rawThisFriend.data[0].status === "pending_second_first"
+        ) {
+          this.requestPending = true;
+        }
+      }
     }
   },
   watch: {
